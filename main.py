@@ -14,7 +14,6 @@ import json
 all_list = []
 #Obly the basic words
 basic_words = []
-
 nlp = spacy.load("en_core_web_sm")
 
 doc = nlp("I loved computer science ""     " " . / :")
