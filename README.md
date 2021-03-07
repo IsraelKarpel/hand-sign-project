@@ -1,4 +1,4 @@
-Sign Language Translation
+#Sign Language Translation
 Media has become an integral part of our daily lives. 
 There is not a day that goes by without watching a TV show on Netflix,
 a commercial on TV or a video on YouTube.
