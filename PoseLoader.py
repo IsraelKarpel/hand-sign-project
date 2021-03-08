@@ -3,19 +3,20 @@ from typing import List
 from pose_format import Pose
 from pose_format.numpy import NumPyPoseBody
 
-def load_poses(path,lang):
+
+def load_poses(path, lang):
     file = open(path, 'r', encoding='utf-8')
     pose_dic = []
     for line in file.readlines():
         pose = json.loads(line)
         if str(pose["id"]).__contains__(lang):
-                pose_dic.append(pose)
+            pose_dic.append(pose)
 
         # print(len(pose_dic))
     return pose_dic
 
 
-def find_poses(BASE_PATH,pose_dict,basic_words):
+def find_poses(BASE_PATH, pose_dict, basic_words):
     FILES = []
     for po in pose_dict:
         for word in basic_words:
@@ -40,5 +41,3 @@ def find_poses(BASE_PATH,pose_dict,basic_words):
 
         poses.append(pose)
     return poses
-
-
