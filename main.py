@@ -13,11 +13,22 @@ from pose_format.pose_visualizer import PoseVisualizer
 import Parser
 import PoseLoader
 import json
+
+import PoseTrimmer
+
 BASE_PATH = "pose_en_files/"
 txt = "we study computer science"
 basic_words,all_list = Parser.parse_captions1(txt)
 pose_dict= PoseLoader.load_poses("index.jsonl","en.us")
 poses = PoseLoader.find_poses(BASE_PATH,pose_dict,basic_words)
+
+# print(poses[0].body.data.array)
+# PoseTrimmer.trim_poses(poses)
+
+
+
+
+
 
 
 # Create a padding
