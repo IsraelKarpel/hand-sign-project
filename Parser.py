@@ -1,11 +1,11 @@
 import spacy
-class CapParser:
-    def parse_captions(self,txt):
-        """Parse the captions file into POSE list.
-         Making it easier to map between raw words and how they'll appear in our dictionary ."""
-        pass
-# class Israelparserversion(Parser):
-
+# class CapParser:
+#     def parse_captions(self,txt):
+#         """Parse the captions file into POSE list.
+#          Making it easier to map between raw words and how they'll appear in our dictionary ."""
+#         pass
+# # class Israelparserversion(Parser):
+#
 
 def parse_captions1(txt):
     all_list = []  # For every word we save the original word, the basic word and its role in the sentence
