@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <h1> wowwww</h1>
+        <% if (info.length >0){ %>
+            <% info.forEach( infoPerOne =>{ %>
+
+            <h3><%= infoPerOne.url %></h3>
+            <h3><%= infoPerOne.language %></h3>
+            <% }) %>
+       <% } else { %>
+            <p> There is no information to display</p>
+        <% } %>
+    </div>
+</body>
+</html>
