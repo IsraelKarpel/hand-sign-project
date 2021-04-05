@@ -6,6 +6,8 @@
 # Target sign language (e.g., American Sign Language)
 # output path
 # and generates the new pose sequence file, and saves it to the path specified.
+import os
+
 import Parser
 import PoseLoader
 import SmoothingAlgorithm
@@ -35,11 +37,14 @@ def main():
     length = input("Please enter length in seconds:")
     if length == "":
         isTime = False
-    else:
-        length = int(length)
-
-    # Targetlang =  input("Please enter output path")
     output_path = input("Please enter output path")
+    isDirectory = os.path.isdir(output_path)
+    if isDirectory is False:
+        output_path = input("Please enter a valid output path")
+        isDirectory = os.path.isdir(output_path)
+        if isDirectory is False:
+            print("Invalid input")
+            exit(-1)
     sentence = parsePOS(wordsPOS)
     basic_words, all_list = Parser.parse_captions1(sentence)
     pose_dict = PoseLoader.load_poses("index.jsonl", "en.us")
@@ -49,8 +54,12 @@ def main():
     else:
         new_pose = SmoothingAlgorithm.runSmoothingAlgorithm(poses)
     f = open("{0}".format(output_path + "/" + sentence), "wb")
-    new_pose.write(f)
-    f.close()
+    if f:
+        new_pose.write(f)
+        f.close()
+    else:
+        print("couldn't open file")
+        exit(-2)
 
 
 if __name__ == "__main__":
