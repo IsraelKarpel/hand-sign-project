@@ -2,7 +2,10 @@ from numpy import ma
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.signal
+import math
 from pose_format import Pose
+WINDOW_SIZE =21
+NUMBER_OF_JOINTS =137
 from pose_format.numpy import NumPyPoseBody
 
 # padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)), confidence=np.zeros(shape=(10, 1, 137)))
@@ -10,6 +13,48 @@ from pose_format.numpy import NumPyPoseBody
 # # Join videos with padding
 # pose_body_data = ma.concatenate([ma.concatenate([p.body.data[1:20], padding.data]) for p in poses])
 # pose_body_confidence = np.concatenate([np.concatenate([p.body.confidence[1:20], padding.confidence]) for p in poses])
+
+def get_distance(x1,y1,x2,y2):
+    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
+def getSquraredDistancesSum(frame1,frame2):
+    sum = 0
+    distance  =0
+    for i in range(0,NUMBER_OF_JOINTS):
+        x1= frame1[i][0]
+        y1 =frame1[i][1]
+        x2 = frame2[i][0]
+        y2=frame2[i][1]
+        if x1 is float("nan"):
+            x1= 0
+        if y1 is float("nan"):
+            y1= 0
+        if x2 is float("nan"):
+            x2= 0
+        if y2 is float("nan"):
+            y2= 0
+        sum += get_distance(x1,y1,x2,y2)
+    return sum
+
+
+def get_best_connection_point(pose1,pose2):
+    #rightnow it's a fixed window size but it should be dynamic and specific to the pose
+    distancematrix= np.zeros(shape = (WINDOW_SIZE,WINDOW_SIZE))
+    numberofpointspose1 = len(pose1.body.data)
+    numberofpointspose2 = len(pose2.body.data)
+    for i in range((numberofpointspose1-WINDOW_SIZE),numberofpointspose1):
+        for j in range(0, WINDOW_SIZE):
+            print(len(pose1.body.data[i][0]))
+            print(len(pose2.body.data[j][0]))
+            d = getSquraredDistancesSum(pose1.body.data[i][0], pose2.body.data[j][0])
+            distancematrix[numberofpointspose1-i][j] = d
+
+
+def find_connection_points_candidates(poses):
+    number_of_poses  =len(poses)
+    for i in range (0, number_of_poses-1):
+        get_best_connection_point(poses[i],poses[i+1])
+
+
 
 
 
@@ -73,6 +118,7 @@ def findAllStartpoints(poses):
 
 
 def runSmoothingAlgorithm(poses):
+    #find_connection_points_candidates(poses)
     newfps = poses[0].body.fps
     padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)),confidence=np.zeros(shape=(10, 1, 137)))
     num_poses = len(poses)
@@ -93,6 +139,31 @@ def runSmoothingAlgorithm(poses):
     new_pose = Pose(header=poses[0].header, body=new_pose_body.interpolate(kind='linear'))
     new_pose.focus()  # Focus pose to not be on 0,0
     return new_pose
+
+def runSmoothingAlgorithmwithtime(poses,time):
+    #find_connection_points_candidates(poses)
+    newfps = poses[0].body.fps
+    padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)),confidence=np.zeros(shape=(10, 1, 137)))
+    num_poses = len(poses)
+    end_pose_points = findAllEndpoints(poses)
+    start_pose_points = findAllStartpoints(poses)
+    countp = 0
+    for pose in poses:
+        if countp== 0:
+            new_pose_body_data = pose.body.data[start_pose_points[countp]:end_pose_points[countp]]
+            new_pose_body_confidence = pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]]
+        else:
+            new_pose_body_data = ma.concatenate([new_pose_body_data,pose.body.data[start_pose_points[countp]:end_pose_points[countp]],padding.data])
+            new_pose_body_confidence = np.concatenate([new_pose_body_confidence,pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]],padding.confidence])
+        countp += 1
+
+    # Create joint pose
+    frames_per_seconds = int(len(new_pose_body_confidence) / time)
+    new_pose_body = NumPyPoseBody(fps=frames_per_seconds, data=new_pose_body_data, confidence=new_pose_body_confidence)
+    new_pose = Pose(header=poses[0].header, body=new_pose_body.interpolate(kind='linear'))
+    new_pose.focus()  # Focus pose to not be on 0,0
+    return new_pose
+
 
 
 
