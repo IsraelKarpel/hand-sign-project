@@ -1,3 +1,4 @@
+#Yair
 import json
 from typing import List
 from pose_format import Pose
@@ -11,8 +12,6 @@ def load_poses(path, lang):
         pose = json.loads(line)
         if str(pose["id"]).__contains__(lang):
             pose_dic.append(pose)
-
-        # print(len(pose_dic))
     return pose_dic
 
 
@@ -27,11 +26,11 @@ def find_poses(BASE_PATH, pose_dict, basic_words):
         with open(BASE_PATH + f_name + ".pose", "rb") as f:
             pose = Pose.read(f.read(), pose_body=NumPyPoseBody)
 
-        # # Normalize height by neck nose height
-        # pose.normalize(pose.header.normalization_info(
-        #     p1=("pose_keypoints_2d", "Neck"),
-        #     p2=("pose_keypoints_2d", "Nose")
-        # ), scale_factor=500)
+        # Normalize height by neck nose height
+        pose.normalize(pose.header.normalization_info(
+            p1=("pose_keypoints_2d", "Neck"),
+            p2=("pose_keypoints_2d", "Nose")
+        ), scale_factor=500)
 
         # Normalize width by shoulder width
         pose.normalize(pose.header.normalization_info(
