@@ -1,3 +1,4 @@
+# Israel
 import spacy
 # class CapParser:
 #     def parse_captions(self,txt):
@@ -8,7 +9,7 @@ import spacy
 #
 
 def parse_captions1(txt):
-    all_list = []  # For every word we save the original word, the basic word and its role in the sentence
+    all_list = []  # For every word we save the original word, the basic word and its POS in the sentence
     basic_words = []  # Only the words in their basic format
     nlp = spacy.load("en_core_web_sm")
 
