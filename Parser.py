@@ -8,10 +8,11 @@ import spacy
 # # class Israelparserversion(Parser):
 #
 
-def parse_captions1(txt):
+def parse_captions1(language, txt):
     all_list = []  # For every word we save the original word, the basic word and its POS in the sentence
     basic_words = []  # Only the words in their basic format
-    nlp = spacy.load("en_core_web_sm")
+    correct_dict = LoadDictionaryAccordingToLanguage(language) #get the currect file of language syntax according to the syntax of the video
+    nlp = spacy.load(correct_dict)
 
     sentence = nlp(txt)
 
@@ -28,7 +29,58 @@ def parse_captions1(txt):
         # print(all_list)
     return basic_words,all_list
 
-
+def LoadDictionaryAccordingToLanguage(language):
+    if language == "zh": #Chinese
+        #python -m spacy download zh_core_web_sm
+        return "zh_core_web_sm"
+    if language == "da": #Danish
+        #python -m spacy download da_core_news_sm
+        return "da_core_news_sm"
+    if language == "nl": #Dutch
+        #python -m spacy download nl_core_news_sm
+        return "nl_core_news_sm"
+    if language == "en": #English
+        #python -m spacy download en_core_web_sm
+        return "en_core_web_sm"
+    if language == "fr": #French
+        #python -m spacy download fr_core_news_sm
+        return "fr_core_news_sm"
+    if language == "de": #German
+        #python -m spacy download de_core_news_sm
+        return "de_core_news_sm"
+    if language == "el": #Greek
+        #python -m spacy download el_core_news_sm
+        return "el_core_news_sm"
+    if language == "it": #Italian
+        #python -m spacy download it_core_news_sm
+        return "it_core_news_sm"
+    if language == "ja": #Japanese
+        #python -m spacy download ja_core_news_sm
+        return "ja_core_news_sm"
+    if language == "lt": #Lithuanian
+        #python -m spacy download lt_core_news_sm
+        return "lt_core_news_sm"
+    if language == "nb": #Norwegian
+        #python -m spacy download nb_core_news_sm
+        return "nb_core_news_sm"
+    if language == "pl": #Polish
+        #python -m spacy download pl_core_news_sm
+        return "pl_core_news_sm"
+    if language == "pt": #Portuguese
+        #python -m spacy download pt_core_news_sm
+        return "pt_core_news_sm"
+    if language == "ro": #Romanian
+        #python -m spacy download ro_core_news_sm
+        return "ro_core_news_sm"
+    if language == "re": #Russian
+        #python -m spacy download re_core_news_sm
+        return "re_core_news_sm"
+    if language == "es": #Spanish
+        #python -m spacy download es_core_news_sm
+        return "es_core_news_sm"
+    #multilanguage
+    # python -m spacy download xx_ent_wiki_sm
+    return "xx_ent_wiki_sm"
 
 
 

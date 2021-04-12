@@ -1,7 +1,7 @@
 #Yair
 from numpy import ma
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import scipy.signal
 import math
 from pose_format import Pose

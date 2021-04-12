@@ -7,10 +7,43 @@ from pose_format.pose_visualizer import PoseVisualizer
 import json
 import Parser
 import PoseLoader
+import ttmlParser
 import SmoothingAlgorithm
-import SubsAnalyse
+#import SubsAnalyse
 
-# path = "News.srt"
+def SuffixOfPoseByLanguage(language):
+    if language == "zh": #Chinese
+        return "zh.zh"
+    if language == "da": #Danish
+        return "da.da"
+    if language == "nl": #Dutch
+        return "nl.nl"
+    if language == "en": #English
+        return "en.us"
+    if language == "fr": #French
+        return "fr.fr"
+    if language == "de": #German
+        return "de.de"
+    if language == "el": #Greek
+        return "el.el"
+    if language == "it": #Italian
+        return "it.it"
+    if language == "ja": #Japanese
+        return "ja.ja"
+    if language == "lt": #Lithuanian
+        return "lt.lt"
+    if language == "nb": #Norwegian
+        return "nb.nb"
+    if language == "pl": #Polish
+        return "pl.pl"
+    if language == "pt": #Portuguese
+        return "pt.pt"
+    if language == "ro": #Romanian
+        return "ro.ro"
+    if language == "re": #Russian
+        return "re.re"
+    if language == "es": #Spanish
+        return "es.es"
 # subs = SubsAnalyse.getCaptions(path)
 # #subs is a list contains list of captions lins, the format: [start time, end time,
 # #   the actual time of the captions in deconds, and the actual subs words]
@@ -39,13 +72,27 @@ import SubsAnalyse
 #     v = PoseVisualizer(new_pose)
 #     v.save_video("joint.mp4", v.draw())
 #
-
-
+from xml.dom import minidom
 
 BASE_PATH = "pose_en_files/"
-txt = "we study computer science"
-basic_words, all_list = Parser.parse_captions1(txt)
-pose_dict = PoseLoader.load_poses("index.jsonl", "en.us")
+file_path = "News2.xml"
+
+ttml_dom = minidom.parse(file_path)
+#get the language of the subtitle
+language = ttmlParser.getLanguge(ttml_dom)
+#get the matche suffix fro the curret language
+suffix = SuffixOfPoseByLanguage(language)
+#get all of the information from the subtitle
+lines_of_information = ttmlParser.getCaptions(ttml_dom)
+subs=[] #subs will contains two element every line, the first is the duraiton of that line
+        #and the second is the text of the subtitle line
+for i in lines_of_information:
+    duration, dialogue = ttmlParser.process_parag(lines_of_information[i])
+    subs.append([duration, dialogue])
+
+
+basic_words, all_list = Parser.parse_captions1()
+pose_dict = PoseLoader.load_poses("index.jsonl", suffix)
 poses = PoseLoader.find_poses(BASE_PATH, pose_dict, basic_words)
 
 new_pose = SmoothingAlgorithm.runSmoothingAlgorithm(poses)
