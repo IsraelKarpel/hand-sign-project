@@ -7,108 +7,35 @@ from pose_format.pose_visualizer import PoseVisualizer
 import json
 import Parser
 import PoseLoader
-import ttmlParser
+import TTMLParser
 import SmoothingAlgorithm
 #import SubsAnalyse
 
-def SuffixOfPoseByLanguage(language):
-    if language == "zh": #Chinese
-        return "zh.zh"
-    if language == "da": #Danish
-        return "da.da"
-    if language == "nl": #Dutch
-        return "nl.nl"
-    if language == "en": #English
-        return "en.us"
-    if language == "fr": #French
-        return "fr.fr"
-    if language == "de": #German
-        return "de.de"
-    if language == "el": #Greek
-        return "el.el"
-    if language == "it": #Italian
-        return "it.it"
-    if language == "ja": #Japanese
-        return "ja.ja"
-    if language == "lt": #Lithuanian
-        return "lt.lt"
-    if language == "nb": #Norwegian
-        return "nb.nb"
-    if language == "pl": #Polish
-        return "pl.pl"
-    if language == "pt": #Portuguese
-        return "pt.pt"
-    if language == "ro": #Romanian
-        return "ro.ro"
-    if language == "re": #Russian
-        return "re.re"
-    if language == "es": #Spanish
-        return "es.es"
-# subs = SubsAnalyse.getCaptions(path)
-# #subs is a list contains list of captions lins, the format: [start time, end time,
-# #   the actual time of the captions in deconds, and the actual subs words]
-# for line in subs:
-#     basic_words, all_list = Parser.parse_captions1(line[3])
-#     pose_dic = PoseLoader.load_poses("index.jsonl", "en.us")
-#     poses = PoseLoader.find_poses("pose_en_files/", pose_dic, basic_words)
-#
-#     # Create a padding
-#     num_of_words = (len((line[3]).split()))
-#     padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)),confidence=np.zeros(shape=(10, 1, 137)))
-#
-#     # Join videos with padding
-#     pose_body_data = ma.concatenate([ma.concatenate([p.body.data[1:20], padding.data]) for p in poses])
-#     pose_body_confidence = np.concatenate([np.concatenate([p.body.confidence[1:20], padding.confidence]) for p in poses])
-#
-#     #calculate the total frames number of the sentence
-#     frames_per_seconds = len(pose_body_confidence) / line[2]
-#
-#     # Create joint pose
-#     new_pose_body = NumPyPoseBody(fps=frames_per_seconds, data=pose_body_data, confidence=pose_body_confidence)
-#     new_pose = Pose(header=poses[0].header, body=new_pose_body.interpolate(kind='linear'))
-#     new_pose.focus()  # Focus pose to not be on 0,0
-#
-#     # Draw video
-#     v = PoseVisualizer(new_pose)
-#     v.save_video("joint.mp4", v.draw())
-#
-from xml.dom import minidom
 
 BASE_PATH = "pose_en_files/"
 file_path = "News2.xml"
+list =[]
+subsarray,suffix,language = TTMLParser.getArrfromCaptions(file_path)
+for line in subsarray:
+    basic_words, all_list = Parser.parse_captions1(language,line[1])
+    pose_dict = PoseLoader.load_poses("index.jsonl", suffix)
+    poses = PoseLoader.find_poses(BASE_PATH, pose_dict, basic_words)
+    new_pose = SmoothingAlgorithm.runSmoothingAlgorithm(poses)
+    list.append(new_pose)
 
-ttml_dom = minidom.parse(file_path)
-#get the language of the subtitle
-language = ttmlParser.getLanguge(ttml_dom)
-#get the matche suffix fro the curret language
-suffix = SuffixOfPoseByLanguage(language)
-#get all of the information from the subtitle
-lines_of_information = ttmlParser.getCaptions(ttml_dom)
-subs=[] #subs will contains two element every line, the first is the duraiton of that line
-        #and the second is the text of the subtitle line
-for i in lines_of_information:
-    duration, dialogue = ttmlParser.process_parag(lines_of_information[i])
-    subs.append([duration, dialogue])
-
-
-basic_words, all_list = Parser.parse_captions1()
-pose_dict = PoseLoader.load_poses("index.jsonl", suffix)
-poses = PoseLoader.find_poses(BASE_PATH, pose_dict, basic_words)
-
-new_pose = SmoothingAlgorithm.runSmoothingAlgorithm(poses)
-
-# Create a padding
 padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)),
                         confidence=np.zeros(shape=(10, 1, 137)))
 
 # Join videos with padding
-pose_body_data = ma.concatenate([ma.concatenate([p.body.data[20:(len(p.body.data) - 20)], padding.data]) for p in poses])
-pose_body_confidence = np.concatenate([np.concatenate([p.body.confidence[20:(len(p.body.data) - 20)], padding.confidence]) for p in poses])
+pose_body_data = ma.concatenate([ma.concatenate([p.body.data, padding.data]) for p in list])
+pose_body_confidence = np.concatenate([np.concatenate([p.body.confidence, padding.confidence]) for p in list])
 
 # Create joint pose
 new_pose_body = NumPyPoseBody(fps=poses[0].body.fps, data=pose_body_data, confidence=pose_body_confidence)
-new_pose = Pose(header=poses[0].header, body=new_pose_body.interpolate(kind='linear'))
-new_pose.focus()  # Focus pose to not be on 0,0
+new_pose = Pose(header=poses[0].header, body=new_pose_body)
+
+
+
 
 # # Draw video
 v = PoseVisualizer(new_pose)

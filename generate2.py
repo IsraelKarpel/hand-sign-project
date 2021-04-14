@@ -26,7 +26,7 @@ def main():
         if sentence == "":
             print("Invalid input")
             exit(-1)
-    output_path = input("Please enter output path")
+    output_path = BASE_PATH
     isDirectory = os.path.isdir(output_path)
     if isDirectory is False:
         output_path = input("Please enter a valid output path")
@@ -34,7 +34,7 @@ def main():
         if isDirectory is False:
             print("Invalid input")
             exit(-1)
-    basic_words, all_list = Parser.parse_captions1(sentence)
+    basic_words, all_list = Parser.parse_captions1("en.us",sentence)
     pose_dict = PoseLoader.load_poses("index.jsonl", "en.us")
     poses = PoseLoader.find_poses(BASE_PATH, pose_dict, basic_words)
     new_pose = SmoothingAlgorithm.runSmoothingAlgorithm(poses)
