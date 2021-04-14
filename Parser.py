@@ -15,7 +15,6 @@ def parse_captions1(language, txt):
     nlp = spacy.load(correct_dict)
 
     sentence = nlp(txt)
-
     for token in sentence:
         # Ignore punctuations : / ' . , and so on
         if not token.is_punct and not token.is_space:
