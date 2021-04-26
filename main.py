@@ -14,6 +14,7 @@ import SmoothingAlgorithm
 
 BASE_PATH = "pose_en_files/"
 file_path = "News2.xml"
+
 list =[]
 subsarray,suffix,language = TTMLParser.getArrfromCaptions(file_path)
 for line in subsarray:
