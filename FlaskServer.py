@@ -3,7 +3,7 @@ import main
 from flask import (Flask,request,jsonify,send_file,make_response,abort)
 import io
 app = Flask(__name__)
-
+number =0
 @app.route("/pose",methods = ["GET"])
 def return_pose():
     # file = request

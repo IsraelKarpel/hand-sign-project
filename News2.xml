@@ -10,8 +10,10 @@
   </head>
   <body style="s0">
     <div>
-      <p begin="1.04s" id="p0" end="5.2s">tonight breaking news the senate</p>
-      <p begin="5.2s" id="p1" end="8.32s">coveted relief package after a marathon</p>
+      <p begin="0s" id="p0" end="7s" >one and two and three and four five </p>
+      <p begin="7s" id="p1" end="10s" >I'm liking and am like are </p>
+      <p begin="10s" id="p1" end="14s" >they are using weapons </p>
+
     </div>
   </body>
 </tt>
