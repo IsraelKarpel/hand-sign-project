@@ -1,0 +1,1 @@
+import{p as r,b as e}from"./p-8c2759bb.js";(()=>{const e=import.meta.url,p={};return""!==e&&(p.resourcesUrl=new URL(".",e).href),r(p)})().then((r=>e([["p-2bfddda2",[[1,"pose-viewer",{src:[1],edit:[4],frame:[32]}]]]],r)));
