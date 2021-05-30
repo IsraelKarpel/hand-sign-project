@@ -1,133 +1,199 @@
-#Yair
+# Yair
 from numpy import ma
 import numpy as np
-#import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import scipy.signal
 import math
 from pose_format.numpy import NumPyPoseBody
 from pose_format import Pose
-WINDOW_SIZE =21
-NUMBER_OF_JOINTS =137
+
+import SquareDistanceMatrix
+
+WINDOW_SIZE = 21
+NUMBER_OF_JOINTS = 137
 
 
 def smoothFinalpose(pose):
     arr = []
-    numberofframes = len(pose.body.data)
-    for i in range(0,NUMBER_OF_JOINTS):
+    number_of_frames = len(pose.body.data)
+    for i in range(0, NUMBER_OF_JOINTS):
         arr = []
-        for j in range(0,numberofframes):
+        for j in range(0, number_of_frames):
             arr.append(pose.body.data[j][0][i][1])
         newdata = scipy.signal.savgol_filter(arr, 31, 3)
-        for k in range(0, numberofframes):
+        for k in range(0, number_of_frames):
             pose.body.data[k][0][i][1] = newdata[k]
     return pose
 
 
-def findPointsInArr(rWristarr,rElbowarr,lWristarr,lElbowarr,index,numberofposes):
-    lenarr = len(rElbowarr)
-    rendindex = 0
-    rstartindex = 0
-    below = True#in the start the wrists are below the elbows
-    for i in range(0,lenarr):
-        if rWristarr[i]<= rElbowarr[i] and below==True:
-            rstartindex =i
-            below=False
-        elif rWristarr[i]> rElbowarr[i] and below==False:
-            rendindex = i
-            below=True
-    lendindex = 0
-    lstartindex = 0
-    below = True#in the start the wrists are below the elbows
-    for i in range(0, lenarr):
-        if lWristarr[i] <= lElbowarr[i] and below == True:
-            lstartindex = i
-            below = False
-        elif lWristarr[i] > lElbowarr[i] and below == False:
-            lendindex = i
-            below = True
-    endpoint= max(rendindex,lendindex)
-    startpoint = min(rstartindex,lstartindex)
-    if index==0:
-        startpoint=0
-    if index == numberofposes-1:
-        endpoint = lenarr
-    return startpoint,endpoint
+# def get_connection_points(start_points, end_points, poses):
+#     index = 0
+#     connectionpoints = []
+#     print((len(poses)))
+#     print(start_points)
+#     print(end_points)
+#     for i in range(0, len(poses)):
+#         index = index + end_points[i] - start_points[i]
+#         connectionpoints.append(index)
+#     return connectionpoints
+#
+#
+# def smoothFinalposenew(pose, connectionpoints):
+#     arr = []
+#     numberofframes = len(pose.body.data)
+#     for i in range(0, NUMBER_OF_JOINTS):
+#         index = 0
+#         arr = []
+#         for j in range(0, numberofframes):
+#             if (j >= (connectionpoints[index] - 15)) and (j < (connectionpoints[index] + 16)):
+#                 arr.append(pose.body.data[j][0][i][1])
+#                 if (j == (connectionpoints[index] +15)):
+#                     newdata = scipy.signal.savgol_filter(arr, 31, 3)
+#                     for k in range((connectionpoints[index] - 15)), ((connectionpoints[index] + 15)):
+#                         pose.body.data[k][0][i][1] = newdata[k]
+#                     index+=1
+#                     arr=[]
+#
+#     return pose
 
 
+# def find_end(wristarr,elbowarr):
+#     lenarr = len(elbowarr)
+#     endindex = 0
+#     above = False  # in the start the wrists are below the elbows
+#     for i in range(0, lenarr):
+#         if wristarr[i] >= elbowarr[i] and above == True:
+#             rendindex = i
+#             above=False
+#         elif wristarr[i] < elbowarr[i]:
+#             above = True
+#     return endindex
+#
+# def find_start(wristarr,elbowarr):
+#     lenarr = len(elbowarr)
+#     startindex = 0
+#     above = False  # in the start the wrists are below the elbows
+#     for i in range(0, lenarr):
+#         if wristarr[i] <= elbowarr[i] and above == False:
+#             startindex = i
+#             above=True
+#     return startindex
+#
+# def check_start(rstart,lstart):
+#     if rstart == 0 and lstart != 0:
+#         startpoint = lstart
+#     elif lstart == 0 and rstart != 0:
+#         startpoint = rstart
+#     else:
+#         startpoint = min(rstart, lstart)
+#     return startpoint
 
 
-def findAllStartandEndpoints(poses):
+# def find_end_start_points(rWristarr,rElbowarr,lWristarr,lElbowarr,index,numberofposes):
+#     lenarr=len(rElbowarr)
+#     rend = find_end(rWristarr,rElbowarr)
+#     lend = find_end(lWristarr,lElbowarr)
+#     rstart = find_start(rWristarr, rElbowarr)
+#     lstart = find_start(lWristarr, lElbowarr)
+#     startpoint = 0
+#     endpoint = max(rend,lend)
+#     if endpoint == 0:
+#         endpoint = lenarr - 15
+#     if index == 0:
+#         startpoint = 0
+#     else:
+#         startpoint = check_start(rstart,lstart)
+#     if index == numberofposes - 1:
+#         endpoint = len(rElbowarr)
+#     print("num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
+#     return startpoint, endpoint
+#
+
+# def find_wrists_elbows_arr(poses):
+#     start_pose_points = []
+#     end_pose_points = []
+#     count_pose = 0
+#     for pose in poses:
+#         rWristYpoints = []
+#         lWristYpoints = []
+#         rElbowYpoints = []
+#         lElbowYpoints = []
+#         number_of_points = len(pose.body.data)
+#         for i in range(0, number_of_points):
+#             rWristYpoints.append(pose.body.data[i][0][4][1])
+#             lWristYpoints.append(pose.body.data[i][0][7][1])
+#             rElbowYpoints.append(pose.body.data[i][0][3][1])
+#             lElbowYpoints.append(pose.body.data[i][0][6][1])
+#         st,en = find_end_start_points(rWristYpoints,rElbowYpoints,lWristYpoints,lElbowYpoints,count_pose,len(poses))
+#         start_pose_points.append(st)
+#         end_pose_points.append(en)
+#         count_pose += 1
+#     return start_pose_points,end_pose_points
+
+
+def get_start_and_end_points_arr(poses):
     start_pose_points = []
     end_pose_points = []
     count_pose = 0
+    number_of_poses = len(poses)
     for pose in poses:
-        rWristYpoints = []
-        lWristYpoints = []
-        rElbowYpoints = []
-        lElbowYpoints = []
-        number_of_points = len(pose.body.data)
-        for i in range(0, number_of_points):
-            rWristYpoints.append(pose.body.data[i][0][4][1])
-            lWristYpoints.append(pose.body.data[i][0][7][1])
-            rElbowYpoints.append(pose.body.data[i][0][3][1])
-            lElbowYpoints.append(pose.body.data[i][0][6][1])
-        st,en = findPointsInArr(rWristYpoints,rElbowYpoints,lWristYpoints,lElbowYpoints,count_pose,len(poses))
-        start_pose_points.append(st)
-        end_pose_points.append(en)
+        if count_pose == 0:
+            start_pose_points.append(0)
+        else:
+            start_pose_points.append(pose.start)
+        if count_pose == number_of_poses - 1:
+            end_pose_points.append(pose.length)
+        else:
+            end_pose_points.append(pose.end)
         count_pose += 1
-    return start_pose_points,end_pose_points
+    return start_pose_points, end_pose_points
 
 
-def runSmoothingAlgorithm(poses):
-    #find_connection_points_candidates(poses)
-    newfps = poses[0].body.fps
-    padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)),confidence=np.zeros(shape=(10, 1, 137)))
-    num_poses = len(poses)
-    start_pose_points, end_pose_points = findAllStartandEndpoints(poses)
+def runSmoothingAlgorithm(posesarr, time=None):
+    poses = []
+    for p in posesarr:
+        poses.append(p.pose)
+    start_pose_points1, end_pose_points1 = get_start_and_end_points_arr(posesarr)
+    start_pose_points, end_pose_points = SquareDistanceMatrix.find_best_connection_points(poses, start_pose_points1,
+                                                                                          end_pose_points1)
+    #c = get_connection_points(start_pose_points, end_pose_points, poses)
+    padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)),
+                            confidence=np.zeros(shape=(10, 1, 137)))
     countp = 0
     for pose in poses:
-        if countp== 0:
-            new_pose_body_data = pose.body.data[start_pose_points[countp]:end_pose_points[countp]]
-            new_pose_body_confidence = pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]]
+        if countp == 0:
+            new_pose_body_data = \
+                pose.body.data[start_pose_points[countp]:end_pose_points[countp]]
+            new_pose_body_confidence = \
+                pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]]
         else:
-            new_pose_body_data = ma.concatenate([new_pose_body_data,pose.body.data[start_pose_points[countp]:end_pose_points[countp]],padding.data])
-            new_pose_body_confidence = np.concatenate([new_pose_body_confidence,pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]],padding.confidence])
+            new_pose_body_data = ma.concatenate(
+                [new_pose_body_data, pose.body.data[start_pose_points[countp]:end_pose_points[countp]], padding.data])
+            new_pose_body_confidence = np.concatenate(
+                [new_pose_body_confidence, pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]],
+                 padding.confidence])
         countp += 1
+    sumframes = 0
+    for i in range(0, len(poses)):
+        numberframes = end_pose_points[i] - start_pose_points[i]
+        sumframes += numberframes
 
-    # Create joint pose
-    new_pose_body = NumPyPoseBody(fps=poses[0].body.fps, data=new_pose_body_data, confidence=new_pose_body_confidence)
+    if time is not None:
+        frames_per_seconds = int(sumframes / time)
+        new_pose_body = NumPyPoseBody(frames_per_seconds, data=new_pose_body_data,
+                                      confidence=new_pose_body_confidence)
+    else:
+        # Create joint pose
+        new_pose_body = NumPyPoseBody(20, data=new_pose_body_data, confidence=new_pose_body_confidence)
     new_pose = Pose(header=poses[0].header, body=new_pose_body.interpolate(kind='linear'))
     new_pose.focus()
-    new_pose = smoothFinalpose(new_pose)
-    return new_pose
-
-def runSmoothingAlgorithmwithtime(poses,time):
-    #find_connection_points_candidates(poses)
-    newfps = poses[0].body.fps
-    padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)),confidence=np.zeros(shape=(10, 1, 137)))
-    num_poses = len(poses)
-    start_pose_points, end_pose_points = findAllStartandEndpoints(poses)
-    countp = 0
-    for pose in poses:
-        if countp== 0:
-            new_pose_body_data = pose.body.data[start_pose_points[countp]:end_pose_points[countp]]
-            new_pose_body_confidence = pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]]
-        else:
-            new_pose_body_data = ma.concatenate([new_pose_body_data,pose.body.data[start_pose_points[countp]:end_pose_points[countp]],padding.data])
-            new_pose_body_confidence = np.concatenate([new_pose_body_confidence,pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]],padding.confidence])
-        countp += 1
-
-    # Create joint pose
-    frames_per_seconds = int(len(new_pose_body_confidence) / time)
-    new_pose_body = NumPyPoseBody(fps=frames_per_seconds, data=new_pose_body_data, confidence=new_pose_body_confidence)
-    new_pose = Pose(header=poses[0].header, body=new_pose_body.interpolate(kind='linear'))
-    new_pose.focus()  # Focus pose to not be on 0,0
-    return new_pose
+    new_pose1 = smoothFinalpose(new_pose)
 
 
-
-
-
+    lenarray = []
+    for i in range(0, len(poses)):
+        lenarray.append(end_pose_points[i] - start_pose_points[i])
+    return new_pose1, lenarray
 
 # # for checking smoothness
 # def anlyze_hands_array(poses):
@@ -174,4 +240,3 @@ def runSmoothingAlgorithmwithtime(poses,time):
 #     plt.plot(RWristYpoints)
 #     plt.plot(improved, color="red")
 #     plt.show()
-
