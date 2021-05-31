@@ -59,15 +59,15 @@ def draw_words_on_frames(frames, words):
 def create_pose_for_video(dict):
     list =[]
     #dict = PoseObj.PoseDictionary("en-us")
-    subsarray,suffix,language = TTMLParser.getArrfromCaptions("News2.xml")
+    subsarray,suffix,language = TTMLParser.getArrfromCaptions("data.xml")
     for line in subsarray:
         basic_words, all_list = Parser.parse_captions1(language,line[1])
-        poses = PoseLoader.find_poses(BASE_PATH, dict, basic_words,suffix)
-        new_pose,lenarray = SmoothingAlgorithm.runSmoothingAlgorithm(poses,line[0])
-        list.append(new_pose)
+        if len(basic_words)!=0:
+            poses = PoseLoader.find_poses(BASE_PATH, dict, basic_words,suffix)
+            if len(poses) != 0:
+                new_pose,lenarray = SmoothingAlgorithm.runSmoothingAlgorithm(poses,line[0])
+                list.append(new_pose)
         #break
-
-
     #
     #
     # padding = NumPyPoseBody(25, data=np.zeros(shape=(20, 1, 137, 2)),

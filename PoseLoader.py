@@ -23,7 +23,7 @@ def find_poses(BASE_PATH, dictionary, basic_words, suffix):
     texts = []
     poses: List[Pose] = []
     for word in basic_words:
-        pose = dictionary.find_pose(word)
+        pose = dictionary.find_pose(word.lower())
         if pose:
             poses.append(pose)
     return poses

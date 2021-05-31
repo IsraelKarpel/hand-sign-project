@@ -13,7 +13,6 @@ def parse_captions1(language, txt):
     basic_words = []  # Only the words in their basic format
     correct_dict = LoadDictionaryAccordingToLanguage(language) #get the currect file of language syntax according to the syntax of the video
     nlp = spacy.load(correct_dict)
-    stopwords = nlp.Defaults.stop_words
     sentence = nlp(txt)
     for token in sentence:
         # Ignore punctuations : / ' . , and so on

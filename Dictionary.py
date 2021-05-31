@@ -37,6 +37,7 @@ class PoseDictionary:
 
     def find_pose(self, word):
         if word in self.wordToPose:
+            print("cached " +word)
             return self.wordToPose[word]
         else:
             if word in self.wordToID:
