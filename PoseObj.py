@@ -4,6 +4,7 @@ class PoseObj:
         self.word = text
         self.pose= pose
         self.length = len(pose.body.data)
+        self.is_noun = False
         self.start = None
         self.end = None
 

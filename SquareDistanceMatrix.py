@@ -5,6 +5,7 @@ from pandas import np
 
 WINDOW_SIZE = 11
 NUMBER_OF_JOINTS = 137
+ALPHA = 0.15
 
 
 def get_distance(x1, y1, x2, y2):
@@ -30,31 +31,34 @@ def getSquraredDistancesSum(frame1, frame2):
         sum += get_distance(x1, y1, x2, y2)
     return sum
 
-
+def calculate_win_size(nf1,nf2,startpoint,endpoint):
+    window1size = round(nf1 * ALPHA)
+    while ((endpoint - window1size) < 0):
+        window1size-=1
+    window2size = round(nf2 * ALPHA)
+    while (startpoint + window2size > nf2):
+        window2size-=1
+    return window1size,window2size
 
 def get_best_connection_point(pose1, pose2, endpoint, startpoint):
-    # rightnow it's a fixed window size but it should be dynamic and specific to the pose
-    distancematrix = np.zeros(shape=(10, 5))
-    numberofpointspose1 = len(pose1.body.data)
-    numberofpointspose2 = len(pose2.body.data)
-    for i in range(endpoint - 5, endpoint + 5):
-        for j in range(startpoint, startpoint + 5):
+    # right now it's a fixed window size but it should be dynamic and specific to the pose
+    nf1 = len(pose1.body.data)
+    nf2 = len(pose2.body.data)
+    window1size,window2size = calculate_win_size(nf1,nf2,startpoint,endpoint)
+    distancematrix = np.zeros(shape=(window1size, window2size))
+    for i in range(endpoint - window1size, endpoint):
+        for j in range(startpoint, startpoint + window2size):
             d = getSquraredDistancesSum(pose1.body.data[i][0], pose2.body.data[j][0])
-            distancematrix[i - (endpoint - 5)][j - startpoint] = d
+            distancematrix[i - (endpoint - window1size)][j - startpoint] = d
     min = 1000000
     newstartpoint = startpoint
     newendpoint = endpoint
-    for i in range(0, 10):
-        for j in range(0, 5):
+    for i in range(0, window1size):
+        for j in range(0, window2size):
             if distancematrix[i][j] <= min:
                 min = distancematrix[i][j]
-                newstartpoint = j
-                newendpoint = i
-    if newendpoint < 5:
-        newendpoint = endpoint - newendpoint
-    else:
-        newendpoint = endpoint + newendpoint
-    newstartpoint = startpoint + newstartpoint
+                newstartpoint = j +startpoint
+                newendpoint = i +(endpoint - window1size)
     return newstartpoint,newendpoint
 
 
@@ -62,16 +66,16 @@ def find_best_connection_points(poses, startpoints, endpoints):
     number_of_poses = len(poses)
     start_pose_points = []
     end_pose_points = []
+    i=-1
     for i in range(0, number_of_poses-1):
         if i==0:
-            start =0
+            start = 0
             start_pose_points.append(start)
         start, end = get_best_connection_point(poses[i], poses[i + 1], endpoints[i], startpoints[i +1])
         start_pose_points.append(start)
         end_pose_points.append(end)
 
     end_pose_points.append(endpoints[i+1])
-    print(len(poses))
     print(start_pose_points)
     print(end_pose_points)
     return start_pose_points, end_pose_points

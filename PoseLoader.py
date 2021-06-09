@@ -22,8 +22,15 @@ def find_poses(BASE_PATH, dictionary, basic_words, suffix):
     FILES = []
     texts = []
     poses: List[Pose] = []
+    countwords =0
+    countnot =0
     for word in basic_words:
-        pose = dictionary.find_pose(word.lower())
+        countwords+=1
+        pose = dictionary.find_pose(word)
         if pose:
             poses.append(pose)
+        else:
+            countnot+=1
+    print("words total:" +str(countwords))
+    print("words not found " +str(countnot))
     return poses

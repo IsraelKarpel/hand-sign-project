@@ -1,5 +1,7 @@
 # Israel
 import spacy
+
+
 # class CapParser:
 #     def parse_captions(self,txt):
 #         """Parse the captions file into POSE list.
@@ -7,16 +9,35 @@ import spacy
 #         pass
 # # class Israelparserversion(Parser):
 #
+def remove_punctuation(txt):
+    # define punctuation
+    punctuations = '''!()-[]{};:"\,<>./?@#$%^&*_~'''
+    # remove punctuation from the string
+    newtxt = ""
+    for char in txt:
+        if char not in punctuations:
+            newtxt = newtxt + char
+    return newtxt
 
-def parse_captions1(language, txt):
+
+def spellWord(word):
+    newWord = ""
+    for char in word:
+        newWord += char + " "
+
+
+def parse_captions1(language, txt, dict):
+    txt = remove_punctuation(txt)
     all_list = []  # For every word we save the original word, the basic word and its POS in the sentence
     basic_words = []  # Only the words in their basic format
-    correct_dict = LoadDictionaryAccordingToLanguage(language) #get the currect file of language syntax according to the syntax of the video
+    correct_dict = LoadDictionaryAccordingToLanguage(
+        language)  # get the current file of language syntax according to the syntax of the video
     nlp = spacy.load(correct_dict)
     sentence = nlp(txt)
     for token in sentence:
         # Ignore punctuations : / ' . , and so on
-        if token.lemma_ == "be":
+        if token.lemma_ == "be" or token.text == "a" or token.text.lower() == "an" or token.text.lower() == "the":
+            print("not entered: " + token.text)
             continue
         if not token.is_punct and not token.is_space:
             # For some reason, PRON needed to specify on his own
@@ -27,60 +48,58 @@ def parse_captions1(language, txt):
                 basic_words.append(token.lemma_)
                 all_list.append(token.text + "_" + token.lemma_ + "_" + token.pos_)
         # print(all_list)
-    return basic_words,all_list
+    return basic_words, all_list
+
 
 def LoadDictionaryAccordingToLanguage(language):
-    if language == "zh": #Chinese
-        #python -m spacy download zh_core_web_sm
+    if language == "zh":  # Chinese
+        # python -m spacy download zh_core_web_sm
         return "zh_core_web_sm"
-    if language == "da": #Danish
-        #python -m spacy download da_core_news_sm
+    if language == "da":  # Danish
+        # python -m spacy download da_core_news_sm
         return "da_core_news_sm"
-    if language == "nl": #Dutch
-        #python -m spacy download nl_core_news_sm
+    if language == "nl":  # Dutch
+        # python -m spacy download nl_core_news_sm
         return "nl_core_news_sm"
-    if language == "en": #English
-        #python -m spacy download en_core_web_sm
+    if language == "en":  # English
+        # python -m spacy download en_core_web_sm
         return "en_core_web_sm"
-    if language == "fr": #French
-        #python -m spacy download fr_core_news_sm
+    if language == "fr":  # French
+        # python -m spacy download fr_core_news_sm
         return "fr_core_news_sm"
-    if language == "de": #German
-        #python -m spacy download de_core_news_sm
+    if language == "de":  # German
+        # python -m spacy download de_core_news_sm
         return "de_core_news_sm"
-    if language == "el": #Greek
-        #python -m spacy download el_core_news_sm
+    if language == "el":  # Greek
+        # python -m spacy download el_core_news_sm
         return "el_core_news_sm"
-    if language == "it": #Italian
-        #python -m spacy download it_core_news_sm
+    if language == "it":  # Italian
+        # python -m spacy download it_core_news_sm
         return "it_core_news_sm"
-    if language == "ja": #Japanese
-        #python -m spacy download ja_core_news_sm
+    if language == "ja":  # Japanese
+        # python -m spacy download ja_core_news_sm
         return "ja_core_news_sm"
-    if language == "lt": #Lithuanian
-        #python -m spacy download lt_core_news_sm
+    if language == "lt":  # Lithuanian
+        # python -m spacy download lt_core_news_sm
         return "lt_core_news_sm"
-    if language == "nb": #Norwegian
-        #python -m spacy download nb_core_news_sm
+    if language == "nb":  # Norwegian
+        # python -m spacy download nb_core_news_sm
         return "nb_core_news_sm"
-    if language == "pl": #Polish
-        #python -m spacy download pl_core_news_sm
+    if language == "pl":  # Polish
+        # python -m spacy download pl_core_news_sm
         return "pl_core_news_sm"
-    if language == "pt": #Portuguese
-        #python -m spacy download pt_core_news_sm
+    if language == "pt":  # Portuguese
+        # python -m spacy download pt_core_news_sm
         return "pt_core_news_sm"
-    if language == "ro": #Romanian
-        #python -m spacy download ro_core_news_sm
+    if language == "ro":  # Romanian
+        # python -m spacy download ro_core_news_sm
         return "ro_core_news_sm"
-    if language == "re": #Russian
-        #python -m spacy download re_core_news_sm
+    if language == "re":  # Russian
+        # python -m spacy download re_core_news_sm
         return "re_core_news_sm"
-    if language == "es": #Spanish
-        #python -m spacy download es_core_news_sm
+    if language == "es":  # Spanish
+        # python -m spacy download es_core_news_sm
         return "es_core_news_sm"
-    #multilanguage
+    # multi_language
     # python -m spacy download xx_ent_wiki_sm
     return "xx_ent_wiki_sm"
-
-
-
