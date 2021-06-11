@@ -5,7 +5,7 @@ from pandas import np
 
 WINDOW_SIZE = 11
 NUMBER_OF_JOINTS = 137
-ALPHA = 0.15
+ALPHA = 0.25
 
 
 def get_distance(x1, y1, x2, y2):

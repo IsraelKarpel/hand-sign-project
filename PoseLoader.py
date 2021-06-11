@@ -3,6 +3,7 @@ import json
 from typing import List
 from pose_format import Pose
 from pose_format.numpy import NumPyPoseBody
+import pose_format.utils.openpose as op
 import PoseObj
 
 

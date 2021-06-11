@@ -19,11 +19,12 @@ def remove_punctuation(txt):
             newtxt = newtxt + char
     return newtxt
 
-
 def spellWord(word):
-    newWord = ""
+    word = word.upper()
+    newWord = []
     for char in word:
-        newWord += char + " "
+        newWord.append('$'+char+'$')
+    return newWord
 
 
 def parse_captions1(language, txt, dict):
@@ -36,18 +37,26 @@ def parse_captions1(language, txt, dict):
     sentence = nlp(txt)
     for token in sentence:
         # Ignore punctuations : / ' . , and so on
-        if token.lemma_ == "be" or token.text == "a" or token.text.lower() == "an" or token.text.lower() == "the":
-            print("not entered: " + token.text)
+        if token.is_space or token.is_punct or token.lemma_ == "be" or token.text == "a" or token.text.lower() == "an" or token.text.lower() == "the":
             continue
-        if not token.is_punct and not token.is_space:
+        else:
             # For some reason, PRON needed to specify on his own
             if token.lemma_ == "-PRON-":
-                basic_words.append(token.orth_)
-                all_list.append(token.text + "_" + token.orth_ + "_" + token.pos_)
+                if(dict.check_if_word_exist(token.orth_)):
+                    basic_words.append(token.orth_)
+                    all_list.append(token.text + "_" + token.orth_ + "_" + token.pos_)
+                else:
+                    basic_words.extend(spellWord(token.orth_))
+                    all_list.append(token.text + "_" + token.orth_ + "_" + token.pos_)
             else:
-                basic_words.append(token.lemma_)
-                all_list.append(token.text + "_" + token.lemma_ + "_" + token.pos_)
+                if (dict.check_if_word_exist(token.lemma_)):
+                    basic_words.append(token.lemma_)
+                    all_list.append(token.text + "_" + token.lemma_ + "_" + token.pos_)
+                else:
+                    basic_words.extend(spellWord(token.lemma_))
+                    all_list.append(token.text + "_" + token.lemma_ + "_" + token.pos_)
         # print(all_list)
+    print(basic_words)
     return basic_words, all_list
 
 
