@@ -5,7 +5,7 @@ from pandas import np
 
 WINDOW_SIZE = 11
 NUMBER_OF_JOINTS = 137
-ALPHA = 0.25
+ALPHA = 0.15
 
 
 def get_distance(x1, y1, x2, y2):
@@ -15,7 +15,7 @@ def get_distance(x1, y1, x2, y2):
 def getSquraredDistancesSum(frame1, frame2):
     sum = 0
     distance = 0
-    for i in range(96, NUMBER_OF_JOINTS):
+    for i in range(0, 25):
         x1 = frame1[i][0]
         y1 = frame1[i][1]
         x2 = frame2[i][0]

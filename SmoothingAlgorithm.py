@@ -120,7 +120,7 @@ def get_start_and_end_points_arr(poses):
         if count_pose == number_of_poses - 1:
             end_pose_points.append(pose.length)
         else:
-            end_pose_points.append(pose.length)
+            end_pose_points.append(pose.end)
         count_pose += 1
     return start_pose_points, end_pose_points
 
@@ -130,8 +130,10 @@ def runSmoothingAlgorithm(posesarr, time=None):
     for p in posesarr:
         poses.append(p.pose)
     start_pose_points, end_pose_points = get_start_and_end_points_arr(posesarr)
+    print(start_pose_points)
+    print(end_pose_points)
     start_pose_points, end_pose_points = SquareDistanceMatrix.find_best_connection_points(poses, start_pose_points,
-                                                                                          end_pose_points)
+                                                                                           end_pose_points)
     padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)),
                             confidence=np.zeros(shape=(10, 1, 137)))
     countp = 0

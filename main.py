@@ -96,7 +96,7 @@ def create_pose_for_video(dict):
 
     v = PoseVisualizer(new_pose)
     frames = v.draw()
-    v.save_video("sentence.mp4", draw_words_on_frames(frames, words))
+    v.save_video("sentence1.mp4", draw_words_on_frames(frames, words))
     # v.save_video("jointWithMatrix.mp4", frames)
     # #,custom_ffmpeg="C:/Users/User/ffmpeg/bin")
     # frames = v.draw()
