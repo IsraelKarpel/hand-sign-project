@@ -35,8 +35,15 @@ class PoseDictionary:
             self.add_pose(word, poseobj)
             return poseobj
 
+
+    def check_if_word_exist(self,word):
+        if word in self.wordToID:
+            return True
+        return False
+
     def find_pose(self, word):
         if word in self.wordToPose:
+            print("cached " + word)
             return self.wordToPose[word]
         else:
             if word in self.wordToID:

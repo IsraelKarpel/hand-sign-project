@@ -1,6 +1,7 @@
 import re
 from xml.dom import minidom
 
+
 def SuffixOfPoseByLanguage(language):
     if language == "zh": #Chinese
         return "zh.zh"

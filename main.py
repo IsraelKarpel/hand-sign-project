@@ -7,7 +7,7 @@ from Dictionaries import Dictionaries
 import Dictionary
 import PoseObj
 
-from PoseN import PoseN
+
 
 sys.path.append("/")
 
@@ -56,31 +56,30 @@ def draw_words_on_frames(frames, words):
         yield frame
 
 
-def create_pose_for_video(dict):
+def create_pose_for_video(dict,subsarray,suffix,language):
     list =[]
-    #dict = PoseObj.PoseDictionary("en-us")
-    subsarray,suffix,language = TTMLParser.getArrfromCaptions("News2.xml")
+    #subsarray,suffix,language = TTMLParser.getArrfromCaptions("data.xml")
     for line in subsarray:
-        basic_words, all_list = Parser.parse_captions1(language,line[1])
-        poses = PoseLoader.find_poses(BASE_PATH, dict, basic_words,suffix)
-        new_pose,lenarray = SmoothingAlgorithm.runSmoothingAlgorithm(poses,line[0])
-        list.append(new_pose)
-        #break
+        basic_words, all_list = Parser.parse_captions1(language,line[1],dict)
+        if len(basic_words)!=0:
+            poses = PoseLoader.find_poses(BASE_PATH, dict, basic_words,suffix)
+            if len(poses) != 0:
+                new_pose,lenarray = SmoothingAlgorithm.runSmoothingAlgorithm(poses,line[0])
+                list.append(new_pose)
 
 
-    #
-    #
-    # padding = NumPyPoseBody(25, data=np.zeros(shape=(20, 1, 137, 2)),
-    #                          confidence=np.zeros(shape=(20, 1, 137)))
-    # # Join videos with padding
-    # pose_body_data = ma.concatenate([ma.concatenate([p.body.data, padding.data]) for p in list])
-    # pose_body_confidence = np.concatenate([np.concatenate([p.body.confidence, padding.confidence]) for p in list])
-    #
-    # # Create joint pose
-    # new_pose_body = NumPyPoseBody(25, data=pose_body_data, confidence=pose_body_confidence)
-    # new_pose = Pose(header=poses[0].header, body=new_pose_body)
+    if (len(list)>1):
+        padding = NumPyPoseBody(25, data=np.zeros(shape=(20, 1, 137, 2)),
+                                 confidence=np.zeros(shape=(20, 1, 137)))
+        # Join videos with padding
+        pose_body_data = ma.concatenate([ma.concatenate([p.body.data, padding.data]) for p in list])
+        pose_body_confidence = np.concatenate([np.concatenate([p.body.confidence, padding.confidence]) for p in list])
 
-    # Draw video
+        # Create joint pose
+        new_pose_body = NumPyPoseBody(25, data=pose_body_data, confidence=pose_body_confidence)
+        new_pose = Pose(header=list[0].header, body=new_pose_body)
+
+    #Draw video
     #
     # new_pose.header.dimensions.width*=0.5
     # new_pose.header.dimensions.height*=0.5
@@ -97,11 +96,11 @@ def create_pose_for_video(dict):
 
     # v = PoseVisualizer(new_pose)
     # frames = v.draw()
-    # v.save_video("jointwithwordsmatrix.mp4", draw_words_on_frames(frames, words))
+    # v.save_video("sentence1.mp4", draw_words_on_frames(frames, words))
     # v.save_video("jointWithMatrix.mp4", frames)
     # #,custom_ffmpeg="C:/Users/User/ffmpeg/bin")
     # frames = v.draw()
-    f = open("po.pose","wb")
+    f = open("C:\\Users\\User\\Documents\\GitHub\\pose-format\\pose_viewer\\www\\sample-data\\video\\po.pose","wb")
     new_pose.write(f)
     f.close()
 

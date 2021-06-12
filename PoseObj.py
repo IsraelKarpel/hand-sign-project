@@ -1,9 +1,20 @@
+RIGHT_SHOULDER = 2
+RIGHT_WRIST = 4
+RIGHT_ELBOW = 3
+LEFT_WRIST = 7
+LEFT_ELBOW = 6
+RELATIVE_DISTANCE = 15
+C = 0
+
+
 class PoseObj:
     def __init__(self, pose, id, text):
         self.id = id
         self.word = text
-        self.pose= pose
+        self.pose = pose
+        self.is_letter = check_is_letter(text)
         self.length = len(pose.body.data)
+        self.is_noun = False
         self.start = None
         self.end = None
 
@@ -16,7 +27,7 @@ class PoseObj:
             return False
 
     def set_start(self, value):
-        self.start=value
+        self.start = value
 
     def set_end(self, value):
         self.end = value
@@ -28,10 +39,27 @@ class PoseObj:
         above = False  # in the start the wrists are below the elbows
         for i in range(0, lenarr):
             if wristarr[i] >= elbowarr[i] and above == True:
-                rendindex = i
+                endindex = i
                 above = False
             elif wristarr[i] < elbowarr[i]:
                 above = True
+        return endindex
+
+    @staticmethod
+    def find_end_for_letter(wristarr, shoulderarr,rElbowarr):
+        lenarr = len(wristarr)
+        endindex = 0
+        above = False  # in the start the wrists are below the elbows
+        for i in range(0, lenarr):
+            s = shoulderarr[i] + 10
+            w = wristarr[i]
+            #if wristarr[i] >= ((shoulderarr[i] + rElbowarr[i])/2) and above == True:
+            if wristarr[i] >= (((shoulderarr[i] + rElbowarr[i]) / 2)+C) and above == True:
+                endindex = i
+                above = False
+            elif wristarr[i] < (((shoulderarr[i] + rElbowarr[i])/2)+C):
+                above = True
+        #return int(lenarr*2/3)
         return endindex
 
     @staticmethod
@@ -45,7 +73,21 @@ class PoseObj:
                 above = True
         return startindex
 
-    def find_points(self,rWristarr, rElbowarr, lWristarr, lElbowarr):
+    @staticmethod
+    def find_start_for_letter(wristarr, shoulderarr,rElbowarr):
+        lenarr = len(shoulderarr)
+        startindex = 0
+        above = False  # in the start the wrists are below the elbows
+        for i in range(0, lenarr):
+            s = shoulderarr[i] + 10
+            w = wristarr[i]
+            if wristarr[i] <= (((shoulderarr[i] + rElbowarr[i])/2)+C) and above == False:
+                startindex = i
+                above = True
+        #return int(lenarr/3)
+        return startindex
+
+    def find_points(self, rWristarr, rElbowarr, lWristarr, lElbowarr):
         lenarr = len(rElbowarr)
         rend = self.find_end(rWristarr, rElbowarr)
         lend = self.find_end(lWristarr, lElbowarr)
@@ -56,23 +98,47 @@ class PoseObj:
         if endpoint == 0:
             endpoint = lenarr - 15
         startpoint = check_start(rstart, lstart)
-        #print("num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
+        print("word num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
+        return startpoint, endpoint
+
+    def find_points_for_letter(self, rWristarr, rShoulderarr,rElbowarr):
+        lenarr = len(rWristarr)
+        rend = self.find_end_for_letter(rWristarr, rShoulderarr,rElbowarr)
+        rstart = self.find_start_for_letter(rWristarr, rShoulderarr,rElbowarr)
+        endpoint = rend
+        if endpoint == 0:
+            endpoint = lenarr - 15
+        startpoint = rstart
+        print("letter num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
         return startpoint, endpoint
 
     def find_start_end_points(self):
-        rWristYpoints = []
-        lWristYpoints = []
-        rElbowYpoints = []
-        lElbowYpoints = []
-        number_of_points = len(self.pose.body.data)
-        for i in range(0, number_of_points):
-            rWristYpoints.append(self.pose.body.data[i][0][4][1])
-            lWristYpoints.append(self.pose.body.data[i][0][7][1])
-            rElbowYpoints.append(self.pose.body.data[i][0][3][1])
-            lElbowYpoints.append(self.pose.body.data[i][0][6][1])
-        st, en = self.find_points(rWristYpoints, rElbowYpoints, lWristYpoints, lElbowYpoints)
-        self.set_start(st)
-        self.set_end(en)
+        if self.is_letter == False:
+            rWristYpoints = []
+            lWristYpoints = []
+            rElbowYpoints = []
+            lElbowYpoints = []
+            number_of_points = len(self.pose.body.data)
+            for i in range(0, number_of_points):
+                rWristYpoints.append(self.pose.body.data[i][0][4][1])
+                lWristYpoints.append(self.pose.body.data[i][0][7][1])
+                rElbowYpoints.append(self.pose.body.data[i][0][3][1])
+                lElbowYpoints.append(self.pose.body.data[i][0][6][1])
+            st, en = self.find_points(rWristYpoints, rElbowYpoints, lWristYpoints, lElbowYpoints)
+            self.set_start(st)
+            self.set_end(en)
+        else:
+            rWristYpoints = []
+            rshoulderYpoints = []
+            rElbowYpoints = []
+            number_of_points = len(self.pose.body.data)
+            for i in range(0, number_of_points):
+                rWristYpoints.append(self.pose.body.data[i][0][4][1])
+                rshoulderYpoints.append(self.pose.body.data[i][0][2][1])
+                rElbowYpoints.append(self.pose.body.data[i][0][3][1])
+            st, en = self.find_points_for_letter(rWristYpoints, rshoulderYpoints,rElbowYpoints)
+            self.set_start(st)
+            self.set_end(en)
 
 
 def check_start(rstart, lstart):
@@ -85,25 +151,12 @@ def check_start(rstart, lstart):
     return startpoint
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def check_is_letter(word):
+    count = 0
+    for ch in word:
+        if ch == '$':
+            count += 1
+    if count == 2:
+        return True
+    else:
+        return False
