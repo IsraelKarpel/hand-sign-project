@@ -1,14 +1,8 @@
-import json
 
-import Dictionary
-import TTMLParser
-import main
+
 from flask import (Flask,request,jsonify,send_file,make_response,abort)
 import io
-import xmltodict
-import xml.etree.ElementTree as ET
 
-from Dictionaries import Dictionaries
 
 app = Flask(__name__)
 number =0
@@ -20,7 +14,7 @@ def get_pose():
     data  = request.get_data()
     with open('data.xml', 'wb') as f:
         f.write(data)
-    subsarray, suffix, language = TTMLParser.getArrfromCaptions("data.xml")
+    #subsarray, suffix, language = TTMLParser.getArrfromCaptions("data.xml")
     #suffix = "en.us"
     # dict = dictionaries.getdictionarybysuffix(suffix)
     # main.create_pose_for_video(dict,subsarray, suffix, language)
