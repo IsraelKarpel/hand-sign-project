@@ -56,9 +56,9 @@ def draw_words_on_frames(frames, words):
         yield frame
 
 
-def create_pose_for_video(dict):
+def create_pose_for_video(dict,subsarray,suffix,language):
     list =[]
-    subsarray,suffix,language = TTMLParser.getArrfromCaptions("data.xml")
+    #subsarray,suffix,language = TTMLParser.getArrfromCaptions("data.xml")
     for line in subsarray:
         basic_words, all_list = Parser.parse_captions1(language,line[1],dict)
         if len(basic_words)!=0:

@@ -1,4 +1,4 @@
-# Israel
+# Israel and Yair
 import spacy
 
 
@@ -31,8 +31,8 @@ def parse_captions1(language, txt, dict):
     txt = remove_punctuation(txt)
     all_list = []  # For every word we save the original word, the basic word and its POS in the sentence
     basic_words = []  # Only the words in their basic format
-    correct_dict = LoadDictionaryAccordingToLanguage(
-        language)  # get the current file of language syntax according to the syntax of the video
+    # get the current file of language syntax according to the syntax of the video
+    correct_dict = LoadDictionaryAccordingToLanguage(language)
     nlp = spacy.load(correct_dict)
     sentence = nlp(txt)
     for token in sentence:
