@@ -1,14 +1,8 @@
-import json
 
-import Dictionary
-import TTMLParser
-import main
+
 from flask import (Flask,request,jsonify,send_file,make_response,abort)
 import io
-import xmltodict
-import xml.etree.ElementTree as ET
 
-from Dictionaries import Dictionaries
 
 app = Flask(__name__)
 number =0
