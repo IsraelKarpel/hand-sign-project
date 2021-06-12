@@ -20,7 +20,7 @@ def get_pose():
     data  = request.get_data()
     with open('data.xml', 'wb') as f:
         f.write(data)
-    subsarray, suffix, language = TTMLParser.getArrfromCaptions("data.xml")
+    #subsarray, suffix, language = TTMLParser.getArrfromCaptions("data.xml")
     #suffix = "en.us"
     # dict = dictionaries.getdictionarybysuffix(suffix)
     # main.create_pose_for_video(dict,subsarray, suffix, language)
