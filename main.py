@@ -26,26 +26,22 @@ import TTMLParser
 import SmoothingAlgorithm
 #import SubsAnalyse
 import PoseObj
-
 BASE_PATH = "pose_en_files/"
-
+from Dictionaries import Dictionaries
 
 
 
 def create_languages_to_suffix_dictionary(filePath="langs.txt"):
-    languages = {}
     file = open(filePath, 'r', encoding='utf-8')
-    pose_dic = []
+    dictionaries = Dictionaries()
     if file:
         for line in file.readlines():
             parts = line.split()
-            languages[parts[0]] = parts[1]
+            dict = Dictionary.PoseDictionary(parts[0], parts[1],parts[2])
+            dictionaries.add_dictionary(dict)
         file.close()
-        return languages
+        return dictionaries
     return None
-
-
-#def craeate_ID_to_WORD_dicts():
 
 
 
@@ -58,9 +54,8 @@ def draw_words_on_frames(frames, words):
 
 def create_pose_for_video(dict,subsarray,suffix,language):
     list =[]
-    #subsarray,suffix,language = TTMLParser.getArrfromCaptions("data.xml")
     for line in subsarray:
-        basic_words, all_list = Parser.parse_captions1(language,line[1],dict)
+        basic_words, all_list = Parser.parse_captions(language,line[1],dict)
         if len(basic_words)!=0:
             poses = PoseLoader.find_poses(BASE_PATH, dict, basic_words,suffix)
             if len(poses) != 0:
@@ -96,7 +91,7 @@ def create_pose_for_video(dict,subsarray,suffix,language):
 
     # v = PoseVisualizer(new_pose)
     # frames = v.draw()
-    # v.save_video("sentence1.mp4", draw_words_on_frames(frames, words))
+    # v.save_video("sentence2.mp4", draw_words_on_frames(frames, words))
     # v.save_video("jointWithMatrix.mp4", frames)
     # #,custom_ffmpeg="C:/Users/User/ffmpeg/bin")
     # frames = v.draw()

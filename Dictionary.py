@@ -5,14 +5,16 @@ from pose_format.numpy import NumPyPoseBody
 from PoseObj import PoseObj
 
 BASE_PATH = "pose_en_files/"
-
+import spacy
 
 class PoseDictionary:
-    def __init__(self, lang, suffix):
+    def __init__(self, lang, suffix, package):
         self.lang = lang
         self.suffix = suffix
         self.wordToID = {}
         self.wordToPose = {}
+        self.language_package = package
+        self.nlp_module = spacy.load(package)
 
     def add_pose(self, text, pose):
         self.wordToPose[text] = pose

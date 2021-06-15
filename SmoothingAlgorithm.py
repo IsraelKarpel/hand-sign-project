@@ -13,57 +13,64 @@ WINDOW_SIZE = 21
 NUMBER_OF_JOINTS = 137
 
 
-def smoothFinalpose(pose):
-    number_of_frames = len(pose.body.data)
-    for i in range(0, NUMBER_OF_JOINTS):
-        arr = []
-        for j in range(0, number_of_frames):
-            arr.append(pose.body.data[j][0][i][1])
-        newdata = scipy.signal.savgol_filter(arr, 5, 3)
-        for k in range(0, number_of_frames):
-            pose.body.data[k][0][i][1] = newdata[k]
+# def smoothFinalposeOLD(pose):
+#     number_of_frames = len(pose.body.data)
+#     for i in range(0, NUMBER_OF_JOINTS):
+#         arr = []
+#         for j in range(0, number_of_frames):
+#             arr.append(pose.body.data[j][0][i][1])
+#         newdata = scipy.signal.savgol_filter(arr, 5, 3)
+#         for k in range(0, number_of_frames):
+#             pose.body.data[k][0][i][1] = newdata[k]
+#     return pose
+#
+#
+# def smoothFinalposeloopunroll5(pose):
+#     number_of_frames = len(pose.body.data)
+#     i = 0
+#     while (i < NUMBER_OF_JOINTS - 5):
+#         arr = []
+#         arr1 = []
+#         arr2 = []
+#         arr3 = []
+#         arr4 = []
+#         for j in range(0, number_of_frames):
+#             arr.append(pose.body.data[j][0][i][1])
+#             arr1.append(pose.body.data[j][0][i + 1][1])
+#             arr2.append(pose.body.data[j][0][i + 2][1])
+#             arr3.append(pose.body.data[j][0][i + 3][1])
+#             arr4.append(pose.body.data[j][0][i + 4][1])
+#         newdata = scipy.signal.savgol_filter(arr, 5, 3)
+#         newdata1 = scipy.signal.savgol_filter(arr1, 5, 3)
+#         newdata2 = scipy.signal.savgol_filter(arr2, 5, 3)
+#         newdata3 = scipy.signal.savgol_filter(arr3, 5, 3)
+#         newdata4 = scipy.signal.savgol_filter(arr4, 5, 3)
+#         for k in range(0, number_of_frames):
+#             pose.body.data[k][0][i][1] = newdata[k]
+#             pose.body.data[k][0][i + 1][1] = newdata1[k]
+#             pose.body.data[k][0][i + 2][1] = newdata2[k]
+#             pose.body.data[k][0][i + 3][1] = newdata3[k]
+#             pose.body.data[k][0][i + 4][1] = newdata4[k]
+#         i += 5
+#
+#     while (i < NUMBER_OF_JOINTS):
+#         arr = []
+#         for j in range(0, number_of_frames):
+#             arr.append(pose.body.data[j][0][i][1])
+#         newdata = scipy.signal.savgol_filter(arr, 5, 3)
+#         for k in range(0, number_of_frames):
+#             pose.body.data[k][0][i][1] = newdata[k]
+#         i += 1
+#     return pose
+
+def smooth_final_pose(pose):
+    number_of_frames = len(pose.body.data[:,0,0,1])
+    number_of_records = len(pose.body.data[0,0,:,1])
+    for i in range(0, number_of_records):
+        newdata = scipy.signal.savgol_filter(pose.body.data[:,0,i,1], 3, 1)
+        pose.body.data[:,0,i,1] = newdata
+        print("smoothed " + str(i)+ "joints out of 137")
     return pose
-
-
-def smoothFinalposeloopunroll5(pose):
-    number_of_frames = len(pose.body.data)
-    i = 0
-    while (i < NUMBER_OF_JOINTS - 5):
-        arr = []
-        arr1 = []
-        arr2 = []
-        arr3 = []
-        arr4 = []
-        for j in range(0, number_of_frames):
-            arr.append(pose.body.data[j][0][i][1])
-            arr1.append(pose.body.data[j][0][i + 1][1])
-            arr2.append(pose.body.data[j][0][i + 2][1])
-            arr3.append(pose.body.data[j][0][i + 3][1])
-            arr4.append(pose.body.data[j][0][i + 4][1])
-        newdata = scipy.signal.savgol_filter(arr, 5, 3)
-        newdata1 = scipy.signal.savgol_filter(arr1, 5, 3)
-        newdata2 = scipy.signal.savgol_filter(arr2, 5, 3)
-        newdata3 = scipy.signal.savgol_filter(arr3, 5, 3)
-        newdata4 = scipy.signal.savgol_filter(arr4, 5, 3)
-        for k in range(0, number_of_frames):
-            pose.body.data[k][0][i][1] = newdata[k]
-            pose.body.data[k][0][i + 1][1] = newdata1[k]
-            pose.body.data[k][0][i + 2][1] = newdata2[k]
-            pose.body.data[k][0][i + 3][1] = newdata3[k]
-            pose.body.data[k][0][i + 4][1] = newdata4[k]
-        i += 5
-
-    while (i < NUMBER_OF_JOINTS):
-        arr = []
-        for j in range(0, number_of_frames):
-            arr.append(pose.body.data[j][0][i][1])
-        newdata = scipy.signal.savgol_filter(arr, 5, 3)
-        for k in range(0, number_of_frames):
-            pose.body.data[k][0][i][1] = newdata[k]
-        i += 1
-    return pose
-
-
 #
 # def smoothFinalposeNEW(pose):
 #     number_of_frames = len(pose.body.data)
@@ -132,8 +139,8 @@ def runSmoothingAlgorithm(posesarr, time=None):
     start_pose_points, end_pose_points = get_start_and_end_points_arr(posesarr)
     print(start_pose_points)
     print(end_pose_points)
-    start_pose_points, end_pose_points = SquareDistanceMatrix.find_best_connection_points(poses, start_pose_points,
-                                                                                           end_pose_points)
+    # start_pose_points, end_pose_points = SquareDistanceMatrix.find_best_connection_points(poses, start_pose_points,
+    #                                                                                       end_pose_points)
     padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)),
                             confidence=np.zeros(shape=(10, 1, 137)))
     countp = 0
@@ -165,7 +172,7 @@ def runSmoothingAlgorithm(posesarr, time=None):
     new_pose = Pose(header=poses[0].header, body=new_pose_body.interpolate(kind='linear'))
     new_pose.focus()
     # new_pose = smoothFinalposeloopunroll3(new_pose)
-    new_pose = smoothFinalposeloopunroll5(new_pose)
+    new_pose = smooth_final_pose(new_pose)
 
     lenarray = []
     for i in range(0, len(poses)):
