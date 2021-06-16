@@ -1,19 +1,40 @@
-<?xml version="1.0" encoding="utf-8"?>
-<tt xmlns="http://www.w3.org/ns/ttml" xmlns:ttp="http://www.w3.org/ns/ttml#parameter" ttp:timeBase="media" xmlns:tts="http://www.w3.org/ns/ttml#style" xml:lang="en" xmlns:ttm="http://www.w3.org/ns/ttml#metadata">
-  <head>
-    <metadata>
-      <ttm:title></ttm:title>
-    </metadata>
-    <styling>
-      <style id="s0" tts:backgroundColor="black" tts:fontStyle="normal" tts:fontSize="16" tts:fontFamily="sansSerif" tts:color="white" />
-    </styling>
-  </head>
-  <body style="s0">
-      <p begin="0s" id="p0" end="7s" > go win this game </p>
+WEBVTT
 
-    <div>
+00:02.170 --> 00:04.136
+Emo, close your eyes
 
+00:04.136 --> 00:05.597
+Why?
+NOW!
 
-    </div>
-  </body>
-</tt>
+00:05.597 --> 00:07.405
+Ok
+
+00:07.405 --> 00:08.803
+Good
+
+00:08.803 --> 00:11.541
+What do you see at your left side Emo?
+
+00:11.541 --> 00:13.287
+Well?
+
+00:13.287 --> 00:16.110
+Er nothing?
+Really?
+
+00:16.110 --> 00:18.514
+No, nothing at all!
+
+00:18.514 --> 00:22.669
+Really? and at your right? What do you see at your right side Emo?
+
+00:22.669 --> 00:26.111
+Umm, the same Proog
+
+00:26.111 --> 00:28.646
+Exactly the same! Nothing!
+
+00:28.646 --> 00:30.794
+Great
+
