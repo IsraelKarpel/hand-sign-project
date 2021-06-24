@@ -21,10 +21,10 @@ import Parser
 import PoseLoader
 import TTMLParser
 import SmoothingAlgorithm
-# import SubsAnalyse
+
 import PoseObj
 
-BASE_PATH = "pose_en_files/"
+BASE_PATH = "pose_en_files/pose_files"
 from Dictionaries import Dictionaries
 
 
@@ -54,26 +54,24 @@ def weighted_fps(fpsarr,timearr, totaltime):
     return int(sum/totaltime)
 
 
-def create_pose_for_video(dict, subsarray, suffix, language, draw_words=False, draw_video=False):
+def create_pose_for_video(dict, subsarray, suffix, language,totaltime, draw_words=False, draw_video=False):
     list = []
     totalframes = 0
-    total_time = 0.0
     timearr = []
     fpsarr = []
     for line in subsarray:
-        basic_words, all_list = Parser.parse_captions(language, line[1], dict)
+        basic_words, all_list = Parser.parse_captions(language,suffix, line[1], dict)
         if len(basic_words) != 0:
             poses = PoseLoader.find_poses(BASE_PATH, dict, basic_words, suffix)
             if len(poses) != 0:
-                new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithm(poses, line[0])
+                new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithm(poses,True ,line[0])
                 timearr.append(float(line[0]))
-                total_time += float(line[0])
                 fpsarr.append(int(len(new_pose.body.data) / float(line[0])))
                 totalframes += len(new_pose.body.data)
                 list.append(new_pose)
 
     if (len(list) > 1):
-        frames_per_seconds = weighted_fps(fpsarr,timearr,total_time)
+        frames_per_seconds = int(totalframes/totaltime)
         padding = NumPyPoseBody(frames_per_seconds, data=np.zeros(shape=(10, 1, 137, 2)),
                                 confidence=np.zeros(shape=(10, 1, 137)))
         # Join videos with padding
@@ -107,6 +105,22 @@ def create_pose_for_video(dict, subsarray, suffix, language, draw_words=False, d
     f = open("C:\\Users\\User\\PycharmProjects\\FINAL\\po.pose", "wb")
     new_pose.write(f)
     f.close()
+
+
+def create_pose_for_sentence(dict, sentence, suffix,language,index):
+    basic_words, all_list = Parser.parse_captions(language, suffix,sentence, dict)
+    if len(basic_words) != 0:
+        poses = PoseLoader.find_poses(BASE_PATH, dict, basic_words, suffix)
+        if len(poses) != 0:
+            new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithm(poses,True)
+            filename = "sentence{0}.pose".format(index)
+            f = open(filename, "wb")
+            new_pose.write(f)
+            f.close()
+            return filename
+
+
+
 
 
 def main():

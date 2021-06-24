@@ -153,7 +153,7 @@ def process_parag(paragraph):
 
 
 
-def getArrfromCaptions(subsfilepath):
+def get_ttml_captions(subsfilepath):
     ttml_dom = minidom.parse(subsfilepath)
     # get the language of the subtitle
     language = getLanguge(ttml_dom)
@@ -163,7 +163,14 @@ def getArrfromCaptions(subsfilepath):
     lines_of_information = getCaptions(ttml_dom)
     subs = []  # subs will contains two element every line, the first is the duraiton of that line
     # and the second is the text of the subtitle line
+    totaltime  = 0
     for line in lines_of_information:
         duration, dialogue = process_parag(line)
         subs.append((duration, dialogue))
-    return subs,suffix,language
+        totaltime+=duration
+    return subs,totaltime
+
+
+
+
+
