@@ -6,6 +6,7 @@ from xml.dom import minidom
 def get_youtube_subtitles(vidId, lang):
     # sending get request and saving the response as response object
     urlad = "https://www.youtube.com/api/timedtext?&v=" + vidId + "&lang=" + lang
+    print(urlad)
     r = requests.get(url=urlad)
     return r.content
 
@@ -110,7 +111,7 @@ def process_parag(paragraph):
 
 
 def get_captions(string):
-    string = string.decode("utf-8")
+    # string = string.decode("utf-8")
     # string.split("<transcript>")
     # content = string[1]
     # content = content.split("<text")

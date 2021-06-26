@@ -5,8 +5,8 @@ from pysubparser import parser
 def get_srt_captions(file_name: str):
     subtitles = parser.parse(file_name)
     subs = []
-    language = "en"
-    suffix = "en.us"
+    # language = "en"
+    # suffix = "en.us"
     totaltime = 0.0
     for subtitle in subtitles:
         s= subtitle.start

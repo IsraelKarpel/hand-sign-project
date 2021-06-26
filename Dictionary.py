@@ -4,7 +4,8 @@ from pose_format.numpy import NumPyPoseBody
 
 from PoseObj import PoseObj
 
-BASE_PATH = "pose_en_files/"
+BASE_PATH = "pose_en_files/pose_files/"
+# BASE_PATH = "pose_en_files/"
 import spacy
 
 class PoseDictionary:
@@ -32,6 +33,7 @@ class PoseDictionary:
                 p1=("pose_keypoints_2d", "RShoulder"),
                 p2=("pose_keypoints_2d", "LShoulder")
             ), scale_factor=500)
+            # pose.focus()
             poseobj = PoseObj(pose,filename,word)
             poseobj.find_start_end_points()
             self.add_pose(word, poseobj)

@@ -1,4 +1,5 @@
 import json
+import youtubeParser
 import requests
 import Dictionary
 import TTMLParser
@@ -83,7 +84,7 @@ def translate_sentence():
     signlang = request.args["lang"]
     sentence = sentence.replace("+", ' ')
     dict = dictionaries.getdictionarybysuffix(signlang)
-    n = random.randint(0, 22)
+    n = random.randint(0, 2002)
     language = "en"
     filename = main.create_pose_for_sentence(dict, sentence, signlang, language, n)
     try:
@@ -95,6 +96,32 @@ def translate_sentence():
             )
     except FileNotFoundError:
         abort(404)
+
+
+@app.route("/youtube/", methods=["GET"])
+def translateYoutube():
+    r = request
+    vidId = request.args["v"]
+    lang = "en"
+    signlang="en.us"
+    text = youtubeParser.get_youtube_subtitles(vidId,lang)
+    text = text.decode("utf-8")
+    if text == '':
+        abort(404)
+    subsarray, totaltime = youtubeParser.get_captions(text)
+    dict = dictionaries.getdictionarybysuffix(signlang)
+    language = signlang[0:2]
+    main.create_pose_for_video(dict, subsarray, signlang, language, totaltime)
+    try:
+        with open("po.pose", 'rb') as bites:
+            return send_file(
+                io.BytesIO(bites.read()),
+                attachment_filename='hey.pose',
+                mimetype='binary'
+            )
+    except FileNotFoundError:
+        abort(404)
+
 
 
 def get_subtitles(urlad):
@@ -111,7 +138,7 @@ def get_subtitles(urlad):
 dictionaries = main.create_languages_to_suffix_dictionary()
 dictionaries.createAllWordToID()
 print("loaded index file and all dictionaries")
-app.run(host= "127.0.0.1",port=4001, threaded=True)
+app.run(host= "0.0.0.0",port=4002, threaded=True)
 
 
 

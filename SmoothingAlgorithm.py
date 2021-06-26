@@ -87,7 +87,9 @@ def runSmoothingAlgorithm(posesarr,matrix=False, time=None):
     for p in posesarr:
         poses.append(p.pose)
     if(len(poses)==1):
-        return poses[0],len(poses[0].body.data)
+        singpose =poses[0]
+        singpose.focus()
+        return singpose,len(singpose.body.data)
     else:
         start_pose_points, end_pose_points = get_start_and_end_points_arr(posesarr)
         if matrix:

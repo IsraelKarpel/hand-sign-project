@@ -5,6 +5,7 @@ import TTMLParser
 import VttParser
 import SRTParser
 import main
+from urllib.parse import urlparse
 from flask import (Flask, request, jsonify, send_file, make_response, abort)
 import io
 from Dictionaries import Dictionaries
@@ -60,24 +61,21 @@ def translate():
 @app.route("/sentence/", methods=["GET"])
 def translate_sentence():
     r = request
-    # sentence = urllib.parse(request.args["sentence"])
     sentence = request.args["sentence"]
     signlang = request.args["lang"]
-    sentence = sentence.replace("+", ' ')
     dict = dictionaries.getdictionarybysuffix(signlang)
-    n = random.randint(0, 22)
+    n = random.randint(0, 2002)
     language = "en"
-    filename = main.create_pose_for_sentence(dict, sentence, signlang, language, n)
+    main.create_pose_for_sentence(dict, sentence, signlang, language, 1)
     try:
-        with open(filename, 'rb') as bites:
+        with open("sentence1.pose", 'rb') as bites:
             return send_file(
                 io.BytesIO(bites.read()),
-                attachment_filename=filename,
+                attachment_filename='hey.pose',
                 mimetype='binary'
             )
     except FileNotFoundError:
         abort(404)
-
 
 
 @app.route("/youtube/", methods=["GET"])
@@ -86,8 +84,11 @@ def translateYoutube():
     vidId = request.args["v"]
     lang = "en"
     signlang="en.us"
-    data = youtubeParser.get_youtube_subtitles(vidId,lang)
-    subsarray, totaltime = youtubeParser.get_captions(data)
+    text = youtubeParser.get_youtube_subtitles(vidId,lang)
+    text = text.decode("utf-8")
+    if text == '':
+        abort(404)
+    subsarray, totaltime = youtubeParser.get_captions(text)
     dict = dictionaries.getdictionarybysuffix(signlang)
     language = signlang[0:2]
     main.create_pose_for_video(dict, subsarray, signlang, language, totaltime)

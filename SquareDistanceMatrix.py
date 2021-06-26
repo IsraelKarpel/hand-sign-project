@@ -58,31 +58,32 @@ def get_best_connection_point(pose1, pose2, endpoint, startpoint):
     distancematrix = np.zeros(shape=(window1size, window2size))
     for i in range(endpoint - window1size, endpoint):
         for j in range(startpoint, startpoint + window2size):
-            #d1 = getSquraredDistancesSum(pose1.body.data[i][0], pose2.body.data[j][0])
+            # d = getSquraredDistancesSum(pose1.body.data[i][0], pose2.body.data[j][0])
             d = getSquraredDistancesSumnew(pose1.body.data[i][0], pose2.body.data[j][0])
             distancematrix[i - (endpoint - window1size)][j - startpoint] = d
-    min = 1000000
-    newstartpoint = startpoint
-    newendpoint = endpoint
-    # result = np.where(distancematrix == np.amin(distancematrix))
-    # listOfCordinates = list(zip(result[0], result[1]))
+
+
     # travese over the list of cordinates
-    # for cord in listOfCordinates:
-    #     print(cord)
-    for i in range(0, window1size):
-        for j in range(0, window2size):
-            if distancematrix[i][j] <= min:
-                min = distancematrix[i][j]
-                l=i
-                k=j
-                newstartpoint = j + startpoint
-                newendpoint = i + (endpoint - window1size)
-    # s = listOfCordinates[0][0]
-    # e = listOfCordinates[0][1]
-    # newstartpoint = e + startpoint
-    # newendpoint = s + (endpoint - window1size)
-    print(newstartpoint,newendpoint)
+    # min = 1000000
+    # newstartpoint = startpoint
+    # newendpoint = endpoint
+    # for i in range(0, window1size):
+    #     for j in range(0, window2size):
+    #         if distancematrix[i][j] <= min:
+    #             min = distancematrix[i][j]
+    #             l=i
+    #             k=j
+    #             newstartpoint = j + startpoint
+    #             newendpoint = i + (endpoint - window1size)
+    result = np.where(distancematrix == np.amin(distancematrix))
+    listOfCordinates = list(zip(result[0], result[1]))
+    s = listOfCordinates[0][0]
+    e = listOfCordinates[0][1]
+    newstartpoint = e + startpoint
+    newendpoint = s + (endpoint - window1size)
+    # print(newstartpoint,newendpoint)
     return newstartpoint, newendpoint
+
 
 
 def find_best_connection_points(poses, startpoints, endpoints):

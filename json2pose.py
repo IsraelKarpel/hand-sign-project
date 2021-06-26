@@ -1,11 +1,14 @@
-import pose_format.utils.openpose as op
+# import pose_format.utils.openpose as op
+#
+# def convert_json2pose(l):
+#     pose  = op.load_openpose_directory("ASL/ASL/{0}".format(str(l)))
+#     f = open("ASL/poses/{0}".format('$'+str(l)+'$'+'.pose'),"wb")
+#     pose.write(f)
+#     f.close()
+#
+# L = ["A","B","C","D","E","F","G", "H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+# for l in L:
+#     convert_json2pose(l)
 
-def convert_json2pose(l):
-    pose  = op.load_openpose_directory("ASL/ASL/{0}".format(str(l)))
-    f = open("ASL/poses/{0}".format('$'+str(l)+'$'+'.pose'),"wb")
-    pose.write(f)
-    f.close()
 
-L = ["A","B","C","D","E","F","G", "H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
-for l in L:
-    convert_json2pose(l)
+

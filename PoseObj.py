@@ -191,3 +191,5 @@ def divideposeby(filename,step):
         new_pose.write(f)
         f.close()
 
+
+

@@ -120,9 +120,6 @@ def create_pose_for_sentence(dict, sentence, suffix,language,index):
             return filename
 
 
-
-
-
 def main():
     langs = create_languages_to_suffix_dictionary()
     dictionaries = Dictionaries()
