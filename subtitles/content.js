@@ -7,6 +7,11 @@
 //run()
 
 chrome.runtime.onMessage.addListener(function (request) {
+    
+    //     const script1 = document.createElement("script")
+//     script1.type = "module"
+//     script1.src = "https://unpkg.com/pose-viewer@0.0.3/dist/pose-viewer/pose-viewer.esm.js"
+//    document.head.appendChild(script1)
 
     const style = document.createElement("style")
 
