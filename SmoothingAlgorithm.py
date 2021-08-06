@@ -13,14 +13,24 @@ WINDOW_SIZE = 21
 NUMBER_OF_JOINTS = 137
 
 
+# def focus_poses(poses,fixed_point):
+#     addx,addy =fixed_point
+#     neck_points = []
+#     for p in poses:
+#         neck_points.append(p.body.data[2][0][1])
+#
+#     print(0)
+
 
 def smooth_final_pose(pose):
-    number_of_frames = len(pose.body.data[:,0,0,1])
-    number_of_records = len(pose.body.data[0,0,:,1])
+    number_of_frames = len(pose.body.data[:, 0, 0, 1])
+    number_of_records = len(pose.body.data[0, 0, :, 1])
     for i in range(0, number_of_records):
-        newdata = scipy.signal.savgol_filter(pose.body.data[:,0,i,1], 3, 1)
-        pose.body.data[:,0,i,1] = newdata
+        newdata = scipy.signal.savgol_filter(pose.body.data[:, 0, i, 1], 3, 1)
+        pose.body.data[:, 0, i, 1] = newdata
     return pose
+
+
 #
 # def smoothFinalposeNEW(pose):
 #     number_of_frames = len(pose.body.data)
@@ -82,18 +92,19 @@ def get_start_and_end_points_arr(poses):
     return start_pose_points, end_pose_points
 
 
-def runSmoothingAlgorithm(posesarr,matrix=False, time=None):
+def runSmoothingAlgorithmVideo(posesarr, first_pose,matrix=False, time=None,):
     poses = []
     for p in posesarr:
         poses.append(p.pose)
-    if(len(poses)==1):
-        singpose =poses[0]
+    if (len(poses) == 1):
+        singpose = poses[0]
         singpose.focus()
-        return singpose,len(singpose.body.data)
+        return singpose, len(singpose.body.data)
     else:
         start_pose_points, end_pose_points = get_start_and_end_points_arr(posesarr)
         if matrix:
-            start_pose_points, end_pose_points = SquareDistanceMatrix.find_best_connection_points(poses, start_pose_points,
+            start_pose_points, end_pose_points = SquareDistanceMatrix.find_best_connection_points(poses,
+                                                                                                  start_pose_points,
                                                                                                   end_pose_points)
         padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)),
                                 confidence=np.zeros(shape=(10, 1, 137)))
@@ -107,7 +118,8 @@ def runSmoothingAlgorithm(posesarr,matrix=False, time=None):
                     pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]]
             else:
                 new_pose_body_data = ma.concatenate(
-                    [new_pose_body_data, pose.body.data[start_pose_points[countp]:end_pose_points[countp]], padding.data])
+                    [new_pose_body_data, pose.body.data[start_pose_points[countp]:end_pose_points[countp]],
+                     padding.data])
                 new_pose_body_confidence = np.concatenate(
                     [new_pose_body_confidence, pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]],
                      padding.confidence])
@@ -123,16 +135,71 @@ def runSmoothingAlgorithm(posesarr,matrix=False, time=None):
                                           confidence=new_pose_body_confidence)
         else:
             # Create joint pose
-            new_pose_body = NumPyPoseBody(30, data=new_pose_body_data, confidence=new_pose_body_confidence)
+            new_pose_body = NumPyPoseBody(40, data=new_pose_body_data, confidence=new_pose_body_confidence)
         new_pose = Pose(header=poses[0].header, body=new_pose_body.interpolate(kind='linear'))
         new_pose.focus()
-        # new_pose = smoothFinalposeloopunroll3(new_pose)
+        #new_pose = smooth_final_pose(new_pose)
+
+        lenarray = []
+        for i in range(0, len(poses)):
+            lenarray.append(end_pose_points[i] - start_pose_points[i])
+        return new_pose, lenarray
+
+
+
+def runSmoothingAlgorithmSetence(posesarr, matrix=False, time=None):
+    poses = []
+    for p in posesarr:
+        poses.append(p.pose)
+    if (len(poses) == 1):
+        singpose = poses[0]
+        singpose.focus()
+        return singpose, len(singpose.body.data)
+    else:
+        start_pose_points, end_pose_points = get_start_and_end_points_arr(posesarr)
+        if matrix:
+            start_pose_points, end_pose_points = SquareDistanceMatrix.find_best_connection_points(poses,
+                                                                                                  start_pose_points,
+                                                                                                  end_pose_points)
+        padding = NumPyPoseBody(fps=poses[0].body.fps, data=np.zeros(shape=(10, 1, 137, 2)),
+                                confidence=np.zeros(shape=(10, 1, 137)))
+        countp = 0
+
+        for pose in poses:
+            if countp == 0:
+                new_pose_body_data = \
+                    pose.body.data[start_pose_points[countp]:end_pose_points[countp]]
+                new_pose_body_confidence = \
+                    pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]]
+            else:
+                new_pose_body_data = ma.concatenate(
+                    [new_pose_body_data, pose.body.data[start_pose_points[countp]:end_pose_points[countp]],
+                     padding.data])
+                new_pose_body_confidence = np.concatenate(
+                    [new_pose_body_confidence, pose.body.confidence[start_pose_points[countp]:end_pose_points[countp]],
+                     padding.confidence])
+            countp += 1
+        sumframes = 0
+        for i in range(0, len(poses)):
+            numberframes = end_pose_points[i] - start_pose_points[i]
+            sumframes += numberframes
+
+        if time is not None and time > 0:
+            frames_per_seconds = int(sumframes / time)
+            new_pose_body = NumPyPoseBody(frames_per_seconds, data=new_pose_body_data,
+                                          confidence=new_pose_body_confidence)
+        else:
+            # Create joint pose
+            new_pose_body = NumPyPoseBody(40, data=new_pose_body_data, confidence=new_pose_body_confidence)
+        new_pose = Pose(header=poses[0].header, body=new_pose_body.interpolate(kind='linear'))
+        new_pose.focus()
         new_pose = smooth_final_pose(new_pose)
 
         lenarray = []
         for i in range(0, len(poses)):
             lenarray.append(end_pose_points[i] - start_pose_points[i])
         return new_pose, lenarray
+
 
 # # for checking smoothness
 # def anlyze_hands_array(poses):

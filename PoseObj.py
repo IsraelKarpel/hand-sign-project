@@ -10,16 +10,19 @@ from numpy import ma
 import numpy as np
 from pose_format.numpy import NumPyPoseBody
 
+
 class PoseObj:
-    def __init__(self, pose, id, text):
+    def __init__(self, pose, id, text,poseID):
         self.id = id
-        self.word = text
+        self.pose_id =poseID
+        self.word = text.replace('-'," ")
         self.pose = pose
         self.is_letter = check_is_letter(text)
         self.length = len(pose.body.data)
         self.is_noun = False
         self.start = None
         self.end = None
+        self.num_words = self.word.count(" ")
 
     def is_end_calculated(self):
         if self.end is None:
@@ -101,7 +104,7 @@ class PoseObj:
         if endpoint == 0:
             endpoint = lenarr - 15
         startpoint = check_start(rstart, lstart)
-        print("word num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
+        # print("word num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
         return startpoint, endpoint
 
     def find_points_for_letter(self, rWristarr, rShoulderarr,rElbowarr):
@@ -112,7 +115,7 @@ class PoseObj:
         if endpoint == 0:
             endpoint = lenarr - 15
         startpoint = rstart
-        print("letter num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
+        # print("letter num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
         return startpoint, endpoint
 
     def find_start_end_points(self):

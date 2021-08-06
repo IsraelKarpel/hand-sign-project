@@ -35,6 +35,30 @@ def getSquraredDistancesSum(frame1, frame2):
     return sum
 
 
+
+
+
+
+
+
+def fit_poses(first_pose,pose):
+    # right now it's a fixed window size but it should be dynamic and specific to the pose
+    relation_neck_point = first_pose.body.data[0,0,1]
+    by_neck_point = pose.body.data[0,0,1]
+    diffX,diffY = relation_neck_point -by_neck_point
+    # number_of_frames = len(pose2.body.data[:, 0, 0, 1])
+    # for i in range(0, NUMBER_OF_JOINTS):
+    pose.body.data[:, 0, :, 1] += diffY
+    pose.body.data[:, 0, :, 0] += diffX
+    return pose
+
+
+
+
+
+
+
+
 def calculate_win_size(nf1, nf2, startpoint, endpoint):
     window1size = round(nf1 * ALPHA)
     while ((endpoint - window1size) < 0):
@@ -43,6 +67,7 @@ def calculate_win_size(nf1, nf2, startpoint, endpoint):
     while (startpoint + window2size > nf2):
         window2size -= 1
     return window1size, window2size
+
 
 
 def getSquraredDistancesSumnew(frame1, frame2):

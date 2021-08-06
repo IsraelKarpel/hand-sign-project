@@ -2,7 +2,7 @@ import sqlite3
 from sqlite3 import Error
 
 
-def create_connection(db_file = "data.db"):
+def create_connection(db_file="data.db"):
     """ create a database connection to the SQLite database
         specified by db_file
     :param db_file: database file
@@ -29,6 +29,7 @@ def create_table(conn, create_table_sql):
         c.execute(create_table_sql)
     except Error as e:
         print(e)
+
 
 def select_task_by_priority(conn, priority):
     """
@@ -64,7 +65,6 @@ def create_task(conn, task):
 
 
 def main():
-
     sql_create_projects_table = """ CREATE TABLE IF NOT EXISTS projects (
                                         id integer PRIMARY KEY,
                                         name text NOT NULL,

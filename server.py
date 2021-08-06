@@ -23,7 +23,6 @@ CORS(app)
 #   getting a pose for a video
 
 
-
 @app.route("/pose", methods=["GET"])
 def get_pose():
     data = request.get_data()
@@ -78,38 +77,87 @@ def translate():
 
 @app.route("/sentence/", methods=["GET"])
 def translate_sentence():
-    r = request
     # sentence = urllib.parse(request.args["sentence"])
     sentence = request.args["sentence"]
     signlang = request.args["lang"]
     sentence = sentence.replace("+", ' ')
     dict = dictionaries.getdictionarybysuffix(signlang)
+    if dict is None:
+        return 'bad request, language pair not found', 400
     n = random.randint(0, 2002)
-    language = "en"
-    filename = main.create_pose_for_sentence(dict, sentence, signlang, language, n)
+    language = signlang[:2]
+    filename,sentence_found = main.create_pose_for_sentence(dict, sentence, signlang, language, n)
+    if sentence_found is None:
+        return 'could not find a word', 400
     try:
         with open(filename, 'rb') as bites:
-            return send_file(
+            response = make_response(send_file(
                 io.BytesIO(bites.read()),
                 attachment_filename=filename,
                 mimetype='binary'
-            )
+            ))
+            response.headers["Accepted-sentence"]= sentence_found.encode("utf-8")
+            return response
     except FileNotFoundError:
         abort(404)
+
+
+
+#
+# @app.route("/sentence/", methods=["GET"])
+# def translate_sentence_new():
+#     # sentence = urllib.parse(request.args["sentence"])
+#     sentence = request.args["sentence"]
+#     lang = request.args["lang"]
+#     if lang:
+#         sourcelang = lang
+#         destlang = lang
+#     else:
+#         sourcelang = request.args["slang"]
+#         destlang = request.args["dlang"]
+#     sentence = sentence.replace("+", ' ')
+#     dict = dictionaries.getdictionarybysuffix(sourcelang)
+#     if dict is None:
+#         return 'bad request, source language pair not found', 400
+#     n = random.randint(0, 2002)
+#     language = sourcelang[:2]
+#     if destlang == sourcelang:
+#         filename, sentence_found = main.create_pose_for_sentence(dict, sentence, sourcelang, language, n)
+#     else:
+#         dict_dest = dictionaries.getdictionarybysuffix(destlang)
+#         if dict_dest is None:
+#             return 'bad request, destination language pair not found', 400
+#         filename, sentence_found = main.create_pose_for_sentence_dest_lang(dict, sentence, sourcelang, dict_dest,
+#                                                                            language, n)
+#     if sentence_found is None:
+#         return 'could not find a word', 400
+#     try:
+#         with open(filename, 'rb') as bites:
+#             response = make_response(send_file(
+#                 io.BytesIO(bites.read()),
+#                 attachment_filename=filename,
+#                 mimetype='binary'
+#             ))
+#             response.headers["Accepted-sentence"] = sentence_found.encode("utf-8")
+#             return response
+#     except FileNotFoundError:
+#         abort(404)
 
 
 @app.route("/youtube/", methods=["GET"])
 def translateYoutube():
     r = request
     vidId = request.args["v"]
-    lang = "en"
-    signlang="en.us"
-    text = youtubeParser.get_youtube_subtitles(vidId,lang)
+    signlang = request.args["lang"]
+    lang = request.args["lang"][:2]
+    text = youtubeParser.get_youtube_subtitles(vidId, lang)
     text = text.decode("utf-8")
     if text == '':
-        abort(404)
+        return ('bad request, ' + str(lang) + " subtitles not found"), 400
     subsarray, totaltime = youtubeParser.get_captions(text)
     dict = dictionaries.getdictionarybysuffix(signlang)
+    if dict is None:
+        return 'bad request, language pair not found', 400
     language = signlang[0:2]
     main.create_pose_for_video(dict, subsarray, signlang, language, totaltime)
     try:
@@ -121,7 +169,6 @@ def translateYoutube():
             )
     except FileNotFoundError:
         abort(404)
-
 
 
 def get_subtitles(urlad):
@@ -137,12 +184,10 @@ def get_subtitles(urlad):
 
 dictionaries = main.create_languages_to_suffix_dictionary()
 dictionaries.createAllWordToID()
+for dic in dictionaries.dictionaries:
+    dic.dict_array = Dictionary.create_length_Array(dic.wordToID)
 print("loaded index file and all dictionaries")
-app.run(host= "0.0.0.0",port=4002, threaded=True)
-
-
-
-
+app.run(host="0.0.0.0", port=4002, threaded=True)
 
 # data = request.json
 # lang = data["language"]

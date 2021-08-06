@@ -110,12 +110,15 @@ def process_parag(paragraph):
 
 
 
-def get_captions(string):
+def get_captions(txt):
     # string = string.decode("utf-8")
     # string.split("<transcript>")
     # content = string[1]
     # content = content.split("<text")
-    ttml_dom = minidom.parseString(string)
+    txt = txt.replace("\n"," ")
+    txt = txt.replace("\t", " ")
+    txt = txt.replace("\r", " ")
+    ttml_dom = minidom.parseString(txt)
     # get the language of the subtitle
     # get the matche suffix fro the curret language
     suffix = "en.us"
