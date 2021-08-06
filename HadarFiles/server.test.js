@@ -9,6 +9,9 @@ const helper = require('./utils');
 const { debug } = require('request');
 
 // check getpose endpoint 
+// execute the get pose function. the function create new row data and saves it in the db .
+// after success an object with message 'success' would be returned.
+
 describe('request getpose', async function () {
     this.timeout(10000);
         it('It shouls return an object with the message finished with status 200', async function () {
@@ -22,7 +25,8 @@ describe('request getpose', async function () {
     }
 );
 
-// check crreateSentences function 
+// check crreateSentences function .
+// execute the function on string of 3 rows. compare the number of output.
 describe('createSentenses', async function () {
         it('It should return an array with 3 elements', async function () {
             var str = `
@@ -37,11 +41,13 @@ Umm, the same Proog`
             const resArray = helper.createSentenses(str);
        //    chai.expect(Array.isArray(resArray)).toBeTruthy();
             chai.expect(resArray.length).equal(3);
+            
         })
     }
 );
 
-
+// takes the word and fetch all the rows that their description includes this word
+// compare the number of rows to the expected.
 describe('wordFromClient', async function () {
     this.timeout(10000);
 
@@ -49,7 +55,7 @@ describe('wordFromClient', async function () {
         const response = await supertest(app)
             .get('/wordFromClient?word=close')
             .expect(200).then(res=> { return res.body;});
-       chai.expect(response.length).equal(38);
+       chai.expect(response.length).equal(5);
     })
 }
 );
