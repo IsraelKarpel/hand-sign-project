@@ -1,0 +1,4 @@
+WEBVTT
+
+00:02.170 --> 00:04.136
+close the window right now

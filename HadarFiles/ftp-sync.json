@@ -1,0 +1,28 @@
+{
+    "remotePath": "/home/nlp/reuvenh5/server/",
+    "host": "nlp.lnx.biu.ac.il",
+    "username": "reuvenh5",
+    "password": "hadar123",
+    "port": 22 ,
+    "secure": false,
+    "protocol": "sftp",
+    "uploadOnSave": true,
+    "passive": false,
+    "debug": false,
+    "privateKeyPath": null,
+    "passphrase": null,
+    "agent": null,
+    "allow": [],
+    "ignore": [
+        "\\.vscode",
+        "\\.git",
+        "\\.DS_Store",
+        "node_modules"
+    ],
+    "generatedFiles": {
+        "extensionsToInclude": [
+            ".php .css .js .html"
+        ],
+        "path": ""
+    }
+}

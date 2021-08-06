@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="cssFile.css">
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.js"></script> -->
+  <script src="script.js"></script>
+</head>
+
+<body>
+  <h1>Different options to smooth</h1>
+  <h2>Enter your word you want to search</h2>
+  <div class="div1">
+    <!-- <label for="word1">Enter your word you want to search</label><br> -->
+    <input type="text" id="word" name="word" class="input"><br>
+    <br><br>
+    <input type="button" id="sendDataBtn" value="Submit" class="btn" onclick="sendWordToServer(document.getElementById('word')); this.style.visibility='hidden'">
+  </div>
+  <table class="table1">
+    <thead>
+      <tr>
+        <th>Sentence</th>
+        <th>Video</th>
+      </tr>
+    </thead>
+    <tbody id="video-table">
+      <tr>
+        <td></td>
+        <td id="changable">
+          <!-- <pose-viewer width='350px'
+            src="https://nlp.biu.ac.il/~ccohenya8/sign/video/?path=https://thepaciellogroup.github.io/AT-browser-tests/video/subtitles-en.vtt&lang=en.us">
+            </pose-format> -->
+            <script src="https://unpkg.com/pose-viewer@0.1.5/dist/pose-viewer/pose-viewer.esm.js"
+              type="module"></script>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </form>
+  <!-- <video width="750" height="500" controls autoPlay >
+   <source src="file:\\C:\\Users\\User\\Downloads\\project 3.4.21 (2)\\posesFromYair\\20210322_075952.mp4" type="video/mp4"/> -->
+  <!-- </video> --> -->
+  <!-- <pose-viewer width='500px' src="https://nlp.biu.ac.il/~ccohenya8/sign/video/?path=https://thepaciellogroup.github.io/AT-browser-tests/video/subtitles-en.vtt&lang=en.us"></pose-format> 
+  <script src="https://unpkg.com/pose-viewer@0.1.5/dist/pose-viewer/pose-viewer.esm.js" type="module"></script> -->
+</body>
+
+</html>
+

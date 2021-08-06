@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+</head>
+<body>
+    <!-- <div>
+        <h1> wowwww</h1>
+        <% if (info.length >0){ %>
+            <% info.forEach( infoPerOne =>{ %>
+
+            <h3><%= infoPerOne.url %></h3>
+            <h3><%= infoPerOne.language %></h3>
+            <% }) %>
+       <% } else { %>
+            <p> There is no information to display</p>
+        <% } %>
+    </div> -->
+
+    <canvas id='c'> </canvas>
+    <div class="loading" id="js-loader"><div class="loader"></div></div>
+
+
+    <!-- The main Three.js file -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js'></script>
+    <!-- This brings in the ability to load custom 3D objects in the .gltf file format. Blender allows the ability to export to this format out the box -->
+    <script src='https://cdn.jsdelivr.net/gh/mrdoob/Three.js@r92/examples/js/loaders/GLTFLoader.js'></script>
+    <script src='/static/main.js'></script>
+
+</body>
+</html>
