@@ -59,10 +59,10 @@ app.get('/wordFromClient', (req, res) => {
 
 app.get('/getpose', function (req, res) {
     s = req.body;
-    // /getpose/?path=https%3A%2F%2Fthepaciellogroup.github.io%2FAT-browser-tests%2Fvideo%2Fsubtitles-en.vtt&lang=en.us'
     console.log(req.query.path);
     getSubtitlesFromWeb(req.query.path, req.query.lang)
-    .then(()=> res.send({message:'success'}))
+    .then(()=> 
+     res.send({message:'success'}))
     .catch( error=> {
         console.log(error);
         res.send({message:'error'})
@@ -96,7 +96,8 @@ function getSubtitlesFromWeb(urlSubtitles, lang) {
                   getPoseFromPythonServer(urlSubtitles, lang, hashUrl);
 
                     console.log('saved!');
-                    res.send(info);
+
+                   return result;
                 });
             // get from server the pose and save it to file system in university
         })
@@ -105,14 +106,12 @@ function getSubtitlesFromWeb(urlSubtitles, lang) {
 async function getPoseFromPythonServer(urlSubtitles, lang, hashPath) {
     const path = require('path');
     const fetch = require('node-fetch');
-    console.log('getPoseFromPythonServer');
     const path1 = path.resolve(__dirname, 'posesFromYair', hashPath + '.pose');
-    console.log(path1);
 
     //const res = await fetch('https://nlp.biu.ac.il/~ccohenya8/sign/video/?path=https://thepaciellogroup.github.io/AT-browser-tests/video/subtitles-en.vtt&lang=en.us');
     let url = `https://nlp.biu.ac.il/~ccohenya8/sign/video/?path=${urlSubtitles}&lang=${lang}`;
     const res = await fetch(url);
-
+    
     const fileStream = fs.createWriteStream(path1);
     await new Promise((resolve, reject) => {
         res.body.pipe(fileStream);
@@ -135,7 +134,6 @@ function createSentenses(str) {
     console.log('result', result);
     return result;
 }*/
-
+module.exports = app;
 app.use('/static', express.static('./static'));
 app.use('/static', express.static('posesFromYair'));
-module.exports = app;
