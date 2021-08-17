@@ -1,0 +1,10 @@
+pose-format
+spacy
+pysubparser
+requests
+numpy
+pandas
+scipy
+flask_cors
+cv2
+flask

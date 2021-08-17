@@ -5,18 +5,24 @@ LEFT_WRIST = 7
 LEFT_ELBOW = 6
 RELATIVE_DISTANCE = 15
 C = 0
+from pose_format import Pose
+from numpy import ma
+import numpy as np
+from pose_format.numpy import NumPyPoseBody
 
 
 class PoseObj:
-    def __init__(self, pose, id, text):
+    def __init__(self, pose, id, text,poseID):
         self.id = id
-        self.word = text
+        self.pose_id =poseID
+        self.word = text.replace('-'," ")
         self.pose = pose
         self.is_letter = check_is_letter(text)
         self.length = len(pose.body.data)
         self.is_noun = False
         self.start = None
         self.end = None
+        self.num_words = self.word.count(" ")
 
     def is_end_calculated(self):
         if self.end is None:
@@ -98,7 +104,7 @@ class PoseObj:
         if endpoint == 0:
             endpoint = lenarr - 15
         startpoint = check_start(rstart, lstart)
-        print("word num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
+        # print("word num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
         return startpoint, endpoint
 
     def find_points_for_letter(self, rWristarr, rShoulderarr,rElbowarr):
@@ -109,7 +115,7 @@ class PoseObj:
         if endpoint == 0:
             endpoint = lenarr - 15
         startpoint = rstart
-        print("letter num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
+        # print("letter num points: " + str(lenarr) + " start: " + str(startpoint) + " end: " + str(endpoint))
         return startpoint, endpoint
 
     def find_start_end_points(self):
@@ -160,3 +166,33 @@ def check_is_letter(word):
         return True
     else:
         return False
+
+
+
+def divideposeby(filename,step):
+    with open(filename , "rb") as f:
+        pose = Pose.read(f.read(), pose_body=NumPyPoseBody)
+        pose.normalize(pose.header.normalization_info(
+            p1=("pose_keypoints_2d", "Neck"),
+            p2=("pose_keypoints_2d", "Nose")
+        ), scale_factor=500)
+
+        # Normalize width by shoulder width
+        pose.normalize(pose.header.normalization_info(
+            p1=("pose_keypoints_2d", "RShoulder"),
+            p2=("pose_keypoints_2d", "LShoulder")
+        ), scale_factor=500)
+
+        number_of_frames = len(pose.body.data)
+        condition = range(0, number_of_frames,step)
+        newposebodydata  = pose.body.data[condition]
+        new_pose_body_confidence = pose.body.confidence[condition]
+        new_pose_body = NumPyPoseBody(20, data=newposebodydata, confidence=new_pose_body_confidence)
+        new_pose = Pose(header=pose.header, body=new_pose_body.interpolate(kind='linear'))
+        new_pose.focus()
+        f = open("C:\\Users\\User\\PycharmProjects\\FINAL\\newASLFS\\"+str(filename), "wb")
+        new_pose.write(f)
+        f.close()
+
+
+

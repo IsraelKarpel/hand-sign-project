@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="6c849e68-3e70-41c5-b395-a4641d630eb8" name="remote_un">
+        <fileTransfer rootFolder="/home/nlp/ccohenya8/sign_lang_tanslation" accessType="SFTP" host="127.0.0.1" port="4001" sshConfigId="fe38b43b-550f-4af5-af30-461b08537919" sshConfig="ccohenya8@127.0.0.1:4001 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

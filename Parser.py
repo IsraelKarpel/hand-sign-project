@@ -1,4 +1,4 @@
-# Israel and Yair
+# Israel and
 import spacy
 import fr_core_news_sm
 
@@ -85,49 +85,15 @@ def spellWord(word):
     return newWord
 
 
-def parse_captions(language, txt, dict):
-    if language == "en":
-        return english_parser(language, txt, dict)
-    if language == "fr":
-        return french_parser(language, txt, dict)
+def parse_captions(language, suffix, txt, dict):
+    module = dict.nlp_module
+    if module is not None:
+        return universal_parser_spacy(language, txt, dict)
     else:
-        print("language not supported")
+        return universal_parser(language, txt, dict)
 
 
-def english_parser(language, txt, dict):
-    txt = remove_punctuation(txt)
-    all_list = []  # For every word we save the original word, the basic word and its POS in the sentence
-    basic_words = []  # Only the words in their basic format
-    # get the current file of language syntax according to the syntax of the video
-    correct_dict = LoadDictionaryAccordingToLanguage(language)
-    nlp = dict.nlp_module
-    sentence = nlp(txt)
-    for token in sentence:
-        # Ignore punctuations : / ' . , and so on
-        if token.is_space or token.is_punct or token.lemma_ == "be" or token.text == "a" or token.text.lower() == "an" or token.text.lower() == "the":
-            continue
-        else:
-            # For some reason, PRON needed to specify on his own
-            if token.lemma_ == "-PRON-":
-                if (dict.check_if_word_exist(token.orth_)):
-                    basic_words.append(token.orth_)
-                    all_list.append(token.text + "_" + token.orth_ + "_" + token.pos_)
-                else:
-                    basic_words.extend(spellWord(token.orth_))
-                    all_list.append(token.text + "_" + token.orth_ + "_" + token.pos_)
-            else:
-                if (dict.check_if_word_exist(token.lemma_)):
-                    basic_words.append(token.lemma_)
-                    all_list.append(token.text + "_" + token.lemma_ + "_" + token.pos_)
-                else:
-                    basic_words.extend(spellWord(token.lemma_))
-                    all_list.append(token.text + "_" + token.lemma_ + "_" + token.pos_)
-        # print(all_list)
-    print(basic_words)
-    return basic_words, all_list
-
-
-def french_parser(language, txt, dict):
+def universal_parser_spacy(language, txt, dict):
     txt = remove_punctuation(txt)
     all_list = []  # For every word we save the original word, the basic word and its POS in the sentence
     basic_words = []  # Only the words in their basic format
@@ -142,19 +108,25 @@ def french_parser(language, txt, dict):
         else:
             # For some reason, PRON needed to specify on his own
             if token.lemma_ == "-PRON-":
-                # if (dict.check_if_word_exist(token.orth_)):
                 basic_words.append(token.orth_)
                 all_list.append(token.text + "_" + token.orth_ + "_" + token.pos_)
-                # else:
-                #     basic_words.extend(spellWord(token.orth_))
-                #     all_list.append(token.text + "_" + token.orth_ + "_" + token.pos_)
             else:
                 # if (dict.check_if_word_exist(token.lemma_)):
                 basic_words.append(token.lemma_)
                 all_list.append(token.text + "_" + token.lemma_ + "_" + token.pos_)
-                # else:
-                #       basic_words.extend(spellWord(token.lemma_))
-                #       all_list.append(token.text + "_" + token.lemma_ + "_" + token.pos_)
-        # print(all_list)
+    print(basic_words)
+    return basic_words, all_list
+
+
+def universal_parser(language, txt, dict):
+    txt = remove_punctuation(txt)
+    all_list = []  # For every word we save the original word, the basic word and its POS in the sentence
+    basic_words = []  # Only the words in their basic format
+    # get the current file of language syntax according to the syntax of the video
+    nlp = dict.nlp_module
+    sentence = txt.split()
+    for word in sentence:
+        basic_words.append(word)
+        all_list.append(word)
     print(basic_words)
     return basic_words, all_list
