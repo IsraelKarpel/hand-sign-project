@@ -12,21 +12,16 @@ sys.path.append("/")
 from pose_format import Pose
 from pose_format.numpy import NumPyPoseBody
 from pose_format.pose_visualizer import PoseVisualizer
-
-# from pose_formatloc.pose_format.pose import Pose
-# from pose_format.pose_body import PoseBody as NumPyPoseBody
-# from pose_formatloc.pose_format.pose_visualizer import PoseVisualizer
 import json
 import Parser
 import PoseLoader
 import TTMLParser
 import SmoothingAlgorithm
 import SquareDistanceMatrix
-
+from Dictionaries import Dictionaries
 import PoseObj
 
 BASE_PATH = "pose_en_files/pose_files"
-from Dictionaries import Dictionaries
 
 
 def create_languages_to_suffix_dictionary(filePath="langs.txt"):
@@ -106,12 +101,12 @@ def create_pose_for_video(dict, subsarray, suffix, language, totaltime, draw_wor
     f.close()
 
 
-def create_pose_for_sentence(dict, sentence, suffix, language, index):
+def create_pose_for_sentence(dict, sentence, suffix, language, index,fps):
     basic_words, all_list = Parser.parse_captions(language, suffix, sentence, dict)
     if len(basic_words) != 0:
         poses, sentence_found = PoseLoader.find_poses(BASE_PATH, dict, basic_words, suffix)
         if len(poses) != 0:
-            new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithmSetence(poses, True)
+            new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithmSetence(poses, True,fps)
             new_pose.body.data -= new_pose.body.data[:, :, 1:2, :]
             new_pose.focus()
             filename = "sentence{0}.pose".format(index)
@@ -130,6 +125,8 @@ def translate2dest(src_poses, dic_dest):
     sentence = ""
     for pose in src_poses:
         id = pose.pose_id
+        if id ==-1:
+            continue
         p, word = dic_dest.find_pose_by_ID(id)
         if p:
             dest_poses.append(p)
@@ -137,14 +134,14 @@ def translate2dest(src_poses, dic_dest):
     return dest_poses, sentence
 
 
-def create_pose_for_sentence_dest_lang(dict, sentence, suffix, dic_dest, language, index):
-    basic_words, all_list = Parser.parse_captions(language, suffix, sentence, dict)
+def create_pose_for_sentence_dest_lang(dicts, sentence, suffix, dic_dest, language, index,fps):
+    basic_words, all_list = Parser.parse_captions(language, suffix, sentence, dicts[0])
     if len(basic_words) != 0:
-        poses, sentence_found = PoseLoader.find_poses(BASE_PATH, dict, basic_words, suffix)
+        poses, sentence_found = PoseLoader.find_poses_in_lang(BASE_PATH, dicts, basic_words, suffix)
         # new
         poses_dest, sentence_dest = translate2dest(poses, dic_dest)
         if len(poses_dest) != 0:
-            new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithmSetence(poses_dest, True)
+            new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithmSetence(poses_dest, True,fps)
             new_pose.body.data -= new_pose.body.data[:, :, 1:2, :]
             new_pose.focus()
             filename = "sentence{0}.pose".format(index)
