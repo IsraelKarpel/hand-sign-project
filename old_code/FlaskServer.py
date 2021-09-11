@@ -4,7 +4,7 @@ import Dictionary
 import TTMLParser
 import VttParser
 import SRTParser
-import main
+import PoseCreator
 from urllib.parse import urlparse
 from flask import (Flask, request, jsonify, send_file, make_response, abort)
 import io
@@ -45,7 +45,7 @@ def translate():
         print("The file does not exist")
     dict = dictionaries.getdictionarybysuffix(signlang)
     language = signlang[0:2]
-    main.create_pose_for_video(dict, subsarray, signlang, language, totaltime)
+    PoseCreator.create_pose_for_video(dict, subsarray, signlang, language, totaltime)
     try:
         with open("po.pose", 'rb') as bites:
             return send_file(
@@ -69,7 +69,7 @@ def translate_sentence():
         return 'bad request, language pair not found', 400
     n = random.randint(0, 2002)
     language = "en"
-    filename, sentence_found = main.create_pose_for_sentence(dict, sentence, signlang, language, n)
+    filename, sentence_found = PoseCreator.create_pose_for_sentence(dict, sentence, signlang, language, n)
     if sentence_found is None:
         return 'could not find a word', 400
     try:
@@ -98,7 +98,7 @@ def translateYoutube():
     subsarray, totaltime = youtubeParser.get_captions(text)
     dict = dictionaries.getdictionarybysuffix(signlang)
     language = signlang[0:2]
-    main.create_pose_for_video(dict, subsarray, signlang, language, totaltime)
+    PoseCreator.create_pose_for_video(dict, subsarray, signlang, language, totaltime)
     try:
         with open("po.pose", 'rb') as bites:
             return send_file(

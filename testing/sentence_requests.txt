@@ -1,3 +1,8 @@
-test,en.us
-what is your name?,en.us
-chocolate,en.us
+d: simple word,s:test,slang:en,dlang:us,fps:30
+d: simple word,s:test,slang:en,dlang:gb,fps:30
+d: simple word,s:test,slang:en,dlang:in,fps:30
+d: simple word,s:test,slang:en,dlang:de,fps:30
+d: simple word,s:test,slang:en,dlang:at,fps:30
+d: simple word,s:test,slang:en,dlang:fr,fps:30
+d: simple word,s:test,slang:en,dlang:pl,fps:30
+d: simple word,s:test,slang:en,dlang:es,fps:30

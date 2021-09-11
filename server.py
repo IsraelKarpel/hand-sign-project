@@ -5,7 +5,7 @@ import Dictionary
 import TTMLParser
 import VttParser
 import SRTParser
-import main
+import PoseCreator
 from flask import (Flask, request, jsonify, send_file, make_response, abort)
 import io
 from Dictionaries import Dictionaries
@@ -31,7 +31,7 @@ def get_pose():
         f.write(data)
     subsarray, suffix, language = TTMLParser.getArrfromCaptions("data.xml")
     dict = dictionaries.getdictionarybysuffix(suffix)
-    main.create_pose_for_video(dict, subsarray, suffix, language, 0)
+    PoseCreator.create_pose_for_video(dict, subsarray, suffix, language, 0)
     try:
         with open("po.pose", 'rb') as bites:
             return send_file(
@@ -64,7 +64,7 @@ def translate():
         print("The file does not exist")
     dict = dictionaries.getdictionarybysuffix(signlang)
     language = signlang[0:2]
-    main.create_pose_for_video(dict, subsarray, signlang, language, totaltime)
+    PoseCreator.create_pose_for_video(dict, subsarray, signlang, language, totaltime)
     try:
         with open("po.pose", 'rb') as bites:
             return send_file(
@@ -167,8 +167,8 @@ def translate_sentence_new():
     n = random.randint(0, 2002)
     dictoptimum = dictionaries.getdictionarybysuffix(sourcelang + '.' + destlang)
     if dictoptimum:
-        filename, sentence_found = main.create_pose_for_sentence(dictoptimum, sentence, (sourcelang + '.' + destlang),
-                                                                 sourcelang, n, fps)
+        filename, sentence_found = PoseCreator.create_pose_for_sentence(dictoptimum, sentence, (sourcelang + '.' + destlang),
+                                                                        sourcelang, n, fps)
     else:
         dicts = dictionaries.get_dictionaries_by_lang(sourcelang)
         if dicts is None:
@@ -177,8 +177,8 @@ def translate_sentence_new():
             dict_dest = dictionaries.getdictionarybysuffix2(destlang)
             if dict_dest is None:
                 return 'bad request, destination language pair not found', 400
-            filename, sentence_found = main.create_pose_for_sentence_dest_lang(dicts, sentence, sourcelang, dict_dest,
-                                                                               sourcelang, n, fps)
+            filename, sentence_found = PoseCreator.create_pose_for_sentence_dest_lang(dicts, sentence, sourcelang, dict_dest,
+                                                                                      sourcelang, n, fps)
     if sentence_found is None:
         return 'could not find a word', 400
     try:
@@ -209,12 +209,12 @@ def translateYoutube():
     if dict is None:
         return 'bad request, language pair not found', 400
     language = signlang[0:2]
-    main.create_pose_for_video(dict, subsarray, signlang, language, totaltime)
+    filename = PoseCreator.create_pose_for_youtube(dict, subsarray, signlang, language, totaltime, vidId)
     try:
-        with open("po.pose", 'rb') as bites:
+        with open(filename, 'rb') as bites:
             return send_file(
                 io.BytesIO(bites.read()),
-                attachment_filename='hey.pose',
+                attachment_filename='po.pose',
                 mimetype='binary'
             )
     except FileNotFoundError:
@@ -232,13 +232,13 @@ def get_subtitles(urlad):
     return filename
 
 
-dictionaries = main.create_languages_to_suffix_dictionary()
+dictionaries = PoseCreator.create_languages_to_suffix_dictionary()
 dictionaries.createAllWordToID()
 for dic in dictionaries.dictionaries:
     dic.dict_array = Dictionary.create_length_Array(dic.wordToID)
 print("loaded index file and all dictionaries")
 app.run(host="0.0.0.0", port=4002, threaded=True)
-# app.run(port=4001, threaded=True)
+#app.run(port=4001, threaded=True)
 # data = request.json
 # lang = data["language"]
 # subtitlesad = (data["url"])
