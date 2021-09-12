@@ -2,7 +2,7 @@ import json
 
 import Dictionary
 import TTMLParser
-import main
+import PoseCreator
 from flask import (Flask,request,jsonify,send_file,make_response,abort)
 import io
 import xmltodict

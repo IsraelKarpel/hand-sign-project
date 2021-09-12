@@ -15,9 +15,9 @@ class PoseDictionary:
         self.suffix = suffix
         self.wordToID = {}
         self.wordToPose = {}
-        #new
+        # new
         self.IdToWord = {}
-        #b
+        # b
         self.language_package = package
         if package != "None":
             self.nlp_module = spacy.load(package)
@@ -25,7 +25,7 @@ class PoseDictionary:
             self.nlp_module = None
         self.dict_array = None
 
-    def add_pose(self, text, pose,id):
+    def add_pose(self, text, pose, id):
         self.wordToPose[text] = pose
 
     def load_pose(self, word, filename):
@@ -41,16 +41,20 @@ class PoseDictionary:
                 p2=("pose_keypoints_2d", "LShoulder")
             ), scale_factor=500)
             pose.focus()
-            #new
+            # new
+
             pose_id = filename.split('_')[0]
-            if pose_id:
-                pose_id = int(pose_id)
-            else:
+            index = pose_id.find('$')
+            if index != -1:
                 pose_id = -1
-            #new
-            poseobj = PoseObj(pose, filename, word,pose_id)
+            else:
+                if pose_id:
+                    pose_id = int(pose_id)
+
+            # new
+            poseobj = PoseObj(pose, filename, word, pose_id)
             poseobj.find_start_end_points()
-            self.add_pose(word, poseobj,pose_id)
+            self.add_pose(word, poseobj, pose_id)
             return poseobj
 
     def check_if_word_exist(self, word):
@@ -72,18 +76,23 @@ class PoseDictionary:
                 return None
 
     def find_pose_by_ID(self, id):
-        word = self.IdToWord[id]
-        if word in self.wordToPose:
-            # print("cached "+ word+" "+str(self.lang))
-            return self.wordToPose[word]
-        else:
-            if word in self.wordToID:
-                pose = self.load_pose(word, self.wordToID[word])
-                if pose:
-                    return pose,word
+        if id == -1:
+            return None, None
+        try:
+            word = self.IdToWord[id]
+            if word in self.wordToPose:
+                # print("cached "+ word+" "+str(self.lang))
+                return self.wordToPose[word] ,word
             else:
-                # print("pose not found for word: " + str(word))
-                return None
+                if word in self.wordToID:
+                    pose = self.load_pose(word, self.wordToID[word])
+                    if pose:
+                        return pose, word
+                else:
+                    # print("pose not found for word: " + str(word))
+                    return None,None
+        except:
+            return None, None
 
 
 def find_longest_word(dict):

@@ -8,25 +8,22 @@ import Dictionary
 import PoseObj
 
 sys.path.append("/")
-
+import os.path
 from pose_format import Pose
 from pose_format.numpy import NumPyPoseBody
 from pose_format.pose_visualizer import PoseVisualizer
-
-# from pose_formatloc.pose_format.pose import Pose
-# from pose_format.pose_body import PoseBody as NumPyPoseBody
-# from pose_formatloc.pose_format.pose_visualizer import PoseVisualizer
 import json
 import Parser
 import PoseLoader
 import TTMLParser
 import SmoothingAlgorithm
 import SquareDistanceMatrix
-
+from Dictionaries import Dictionaries
 import PoseObj
 
 BASE_PATH = "pose_en_files/pose_files"
-from Dictionaries import Dictionaries
+SAVE_PATH_SENTENCES = "sentence_results"
+SAVE_PATH_YOUTUBE = "youtube_results"
 
 
 def create_languages_to_suffix_dictionary(filePath="langs.txt"):
@@ -101,24 +98,87 @@ def create_pose_for_video(dict, subsarray, suffix, language, totaltime, draw_wor
     new_pose.body.data -= new_pose.body.data[:, :, 1:2, :]
     new_pose.focus()
     new_pose = SmoothingAlgorithm.smooth_final_pose(new_pose)
-    f = open("C:\\Users\\User\\PycharmProjects\\FINAL\\po.pose", "wb")
+    f = open("po.pose", "wb")
     new_pose.write(f)
     f.close()
 
 
-def create_pose_for_sentence(dict, sentence, suffix, language, index):
+def create_pose_for_youtube(dict, subsarray, suffix, language, totaltime, vidid, draw_words=False, draw_video=False):
+    filename = "v={0}-{1}.pose".format(vidid, suffix)
+    complete_name = os.path.join(SAVE_PATH_YOUTUBE, filename)
+    if os.path.isfile(complete_name):
+        print("cached")
+        return complete_name
+    else:
+        list = []
+        totalframes = 0
+        timearr = []
+        fpsarr = []
+        count = 0
+        for line in subsarray:
+            basic_words, all_list = Parser.parse_captions(language, suffix, line[1], dict)
+            if len(basic_words) != 0:
+                poses, sentence_found = PoseLoader.find_poses(BASE_PATH, dict, basic_words, suffix)
+                if count == 0:
+                    first_pose = poses[0]
+                if len(poses) != 0:
+                    new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithmVideo(poses, first_pose, True, line[0])
+                    timearr.append(float(line[0]))
+                    fpsarr.append(int(len(new_pose.body.data) / float(line[0])))
+                    totalframes += len(new_pose.body.data)
+
+                    list.append(new_pose)
+            count += 1
+
+        if (len(list) > 1):
+            frames_per_seconds = int(totalframes / totaltime)
+            #frames_per_seconds = int((totalframes + len(list) * 10) / totaltime)
+            padding = NumPyPoseBody(frames_per_seconds, data=np.zeros(shape=(10, 1, 137, 2)),
+                                    confidence=np.zeros(shape=(10, 1, 137)))
+            # Join videos with padding
+            pose_body_data = ma.concatenate([ma.concatenate([p.body.data, padding.data]) for p in list])
+            pose_body_confidence = np.concatenate(
+                [np.concatenate([p.body.confidence, padding.confidence]) for p in list])
+
+            # Create joint pose
+            new_pose_body = NumPyPoseBody(frames_per_seconds, data=pose_body_data, confidence=pose_body_confidence)
+            new_pose = Pose(header=list[0].header, body=new_pose_body)
+        if draw_video:
+            words = []
+            for i in range(0, len(lenarray)):
+                for j in range(0, lenarray[i] + 10):
+                    words.append(basic_words[i])
+            v = PoseVisualizer(new_pose)
+            frames = v.draw()
+            v.save_video("sentence2.mp4", draw_words_on_frames(frames, words))
+
+        print("try new")
+        new_pose.body.data -= new_pose.body.data[:, :, 1:2, :]
+        new_pose.focus()
+        new_pose = SmoothingAlgorithm.smooth_final_pose(new_pose)
+        #new
+        new_pose = PoseObj.compress_pose(new_pose,2)
+        #
+        f = open(complete_name, "wb")
+        new_pose.write(f)
+        f.close()
+        return complete_name
+
+
+def create_pose_for_sentence(dict, sentence, suffix, language, index, fps):
     basic_words, all_list = Parser.parse_captions(language, suffix, sentence, dict)
     if len(basic_words) != 0:
         poses, sentence_found = PoseLoader.find_poses(BASE_PATH, dict, basic_words, suffix)
         if len(poses) != 0:
-            new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithmSetence(poses, True)
+            new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithmSetence(poses, True, fps)
             new_pose.body.data -= new_pose.body.data[:, :, 1:2, :]
             new_pose.focus()
             filename = "sentence{0}.pose".format(index)
-            f = open(filename, "wb")
+            complete_name = os.path.join(SAVE_PATH_SENTENCES, filename)
+            f = open(complete_name, "wb")
             new_pose.write(f)
             f.close()
-            return filename, sentence_found
+            return complete_name, sentence_found
         else:
             return None, None
     else:
@@ -130,6 +190,8 @@ def translate2dest(src_poses, dic_dest):
     sentence = ""
     for pose in src_poses:
         id = pose.pose_id
+        if id == -1:
+            continue
         p, word = dic_dest.find_pose_by_ID(id)
         if p:
             dest_poses.append(p)
@@ -137,21 +199,21 @@ def translate2dest(src_poses, dic_dest):
     return dest_poses, sentence
 
 
-def create_pose_for_sentence_dest_lang(dict, sentence, suffix, dic_dest, language, index):
-    basic_words, all_list = Parser.parse_captions(language, suffix, sentence, dict)
+def create_pose_for_sentence_dest_lang(dicts, sentence, suffix, dic_dest, language, index, fps):
+    basic_words, all_list = Parser.parse_captions(language, suffix, sentence, dicts[0])
     if len(basic_words) != 0:
-        poses, sentence_found = PoseLoader.find_poses(BASE_PATH, dict, basic_words, suffix)
-        # new
+        poses, sentence_found = PoseLoader.find_poses_in_lang(BASE_PATH, dicts, basic_words, suffix)
         poses_dest, sentence_dest = translate2dest(poses, dic_dest)
         if len(poses_dest) != 0:
-            new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithmSetence(poses_dest, True)
+            new_pose, lenarray = SmoothingAlgorithm.runSmoothingAlgorithmSetence(poses_dest, True, fps)
             new_pose.body.data -= new_pose.body.data[:, :, 1:2, :]
             new_pose.focus()
             filename = "sentence{0}.pose".format(index)
-            f = open(filename, "wb")
+            complete_name = os.path.join(SAVE_PATH_SENTENCES, filename)
+            f = open(complete_name, "wb")
             new_pose.write(f)
             f.close()
-            return filename, sentence_dest
+            return complete_name, sentence_dest
         else:
             return None, None
     else:

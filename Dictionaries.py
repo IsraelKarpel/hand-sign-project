@@ -30,6 +30,22 @@ class Dictionaries:
             if dict.suffix == suffix:
                 return dict
 
+    def getdictionarybysuffix2(self, suffix):
+        for dict in self.dictionaries:
+            d = dict.suffix[3:]
+            if dict.suffix[3:] == suffix:
+                return dict
+
+
+    def get_dictionaries_by_lang(self, lang):
+        dicts = []
+        for dict in self.dictionaries:
+            if dict.suffix[:2] == lang:
+                dicts.append(dict)
+        return dicts
+
+
+
     def createAllWordToID(self, path="index.jsonl"):
         file = open(path, 'r', encoding='utf-8')
         if file:

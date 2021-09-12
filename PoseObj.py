@@ -196,3 +196,12 @@ def divideposeby(filename,step):
 
 
 
+def compress_pose(pose,factor):
+    number_of_frames = len(pose.body.data)
+    condition = range(0, number_of_frames, factor)
+    newposebodydata = pose.body.data[condition]
+    new_pose_body_confidence = pose.body.confidence[condition]
+    new_pose_body = NumPyPoseBody(int(pose.body.fps/factor), data=newposebodydata, confidence=new_pose_body_confidence)
+    new_pose = Pose(header=pose.header, body=new_pose_body.interpolate(kind='linear'))
+    new_pose.focus()
+    return new_pose

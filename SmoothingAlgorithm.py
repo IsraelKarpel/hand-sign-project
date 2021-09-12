@@ -147,7 +147,7 @@ def runSmoothingAlgorithmVideo(posesarr, first_pose,matrix=False, time=None,):
 
 
 
-def runSmoothingAlgorithmSetence(posesarr, matrix=False, time=None):
+def runSmoothingAlgorithmSetence(posesarr, matrix=False, fps=None):
     poses = []
     for p in posesarr:
         poses.append(p.pose)
@@ -184,8 +184,8 @@ def runSmoothingAlgorithmSetence(posesarr, matrix=False, time=None):
             numberframes = end_pose_points[i] - start_pose_points[i]
             sumframes += numberframes
 
-        if time is not None and time > 0:
-            frames_per_seconds = int(sumframes / time)
+        if fps:
+            frames_per_seconds = fps
             new_pose_body = NumPyPoseBody(frames_per_seconds, data=new_pose_body_data,
                                           confidence=new_pose_body_confidence)
         else:
